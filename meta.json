@@ -1,0 +1,18 @@
+{
+  "name": "MiCube",
+  "codename": "CrystalCube",
+  "subtitle": "ROUTEROS & NAS MULTI-ARCH GATEWAY",
+  "version": "Test V0.1",
+  "core": "mihomo v1.19.32 (Stable)",
+  "architectures": ["amd64", "arm64"],
+  "platforms": ["RouterOS v7 Container", "fnOS Docker", "Synology DSM", "Unraid", "Linux VM/LXC"],
+  "ports": {
+    "panel": 2026,
+    "dns_relay": 53,
+    "mihomo_dns": 7853,
+    "mixed_proxy": 7890,
+    "mihomo_api": 9090
+  },
+  "memory_limit_mb": 60,
+  "license": "Proprietary"
+}

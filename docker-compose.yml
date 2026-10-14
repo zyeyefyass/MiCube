@@ -1,0 +1,16 @@
+services:
+  micube:
+    image: docker.io/fyasshole/micube:latest
+    container_name: micube
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/micube/data:/app/data
+    environment:
+      - TZ=Asia/Shanghai
+      - PORT=2026
+      - MICUBE_PLATFORM=docker
+      - GOMEMLIMIT=32MiB
+      - GOGC=30

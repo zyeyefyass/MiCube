@@ -1,0 +1,54 @@
+# Proprietary Source Code (Isolated in private repo)
+/server/
+/web/
+/container/
+/Dockerfile
+/entrypoint.sh
+/.github/
+
+
+# Binaries and build outputs
+/bin/
+/dist/*.tar
+/dist/*.tar.gz
+server/dist/
+web/dist/
+manifest.json
+
+# Dependencies
+node_modules/
+.pnpm-store/
+package-lock.json
+
+# Runtime and local state
+/data/
+/etc/config.yaml
+/etc/config.yaml.bak
+/etc/rules/
+/etc/*.dat
+/etc/*.metadb
+*.pid
+*.log
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Local scratch and test scripts with sensitive environment info
+/scratch/
+*.py
+fix.js
+.gemini/
+GEMINI.md
+*BLUEPRINT*.md
+*.blueprint.md
+.env
+.env.*
+!.env.example
+
+# IDE & OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
