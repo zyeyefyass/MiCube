@@ -2,10 +2,19 @@
   "name": "MiCube",
   "codename": "CrystalCube",
   "subtitle": "ROUTEROS & NAS MULTI-ARCH GATEWAY",
-  "version": "Test V0.1",
-  "core": "mihomo v1.19.32 (Stable)",
-  "architectures": ["amd64", "arm64"],
-  "platforms": ["RouterOS v7 Container", "fnOS Docker", "Synology DSM", "Unraid", "Linux VM/LXC"],
+  "version": "Test V0.2",
+  "core": "mihomo alpha-94b13ae (Prerelease)",
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "platforms": [
+    "RouterOS v7 Container",
+    "fnOS Docker",
+    "Synology DSM",
+    "Unraid",
+    "Linux VM/LXC"
+  ],
   "ports": {
     "panel": 2026,
     "dns_relay": 53,
