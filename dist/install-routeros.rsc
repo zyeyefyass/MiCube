@@ -20,6 +20,7 @@
   mounts=micube-etc,micube-data \
   logging=yes \
   start-on-boot=yes \
+  restart-policy=always \
   comment="MiCube-HighPerformance-Gateway"
 
 # 4. 打印完成指引
