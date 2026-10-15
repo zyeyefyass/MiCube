@@ -542,6 +542,10 @@ func (m *Manager) TriggerBatchDelayTest(testURL string, timeoutMs int) {
 	}
 
 	client := &http.Client{Timeout: 12 * time.Second}
+	// Throttle with worker pool (max 16 concurrent tests) to prevent CPU spike and bufferbloat
+	sem := make(chan struct{}, 16)
+	var wg sync.WaitGroup
+
 	for name, proxy := range data.Proxies {
 		ptype := strings.ToLower(proxy.Type)
 		var delayURL string
@@ -551,19 +555,22 @@ func (m *Manager) TriggerBatchDelayTest(testURL string, timeoutMs int) {
 			delayURL = fmt.Sprintf("%s/proxies/%s/delay?url=%s&timeout=%d", m.mihomoAPI, name, testURL, timeoutMs)
 		}
 		if delayURL != "" {
-			req, _ := http.NewRequest(http.MethodGet, delayURL, nil)
-			go func(r *http.Request) {
-				resp, err := client.Do(r)
-				if err == nil {
+			wg.Add(1)
+			go func(target string) {
+				defer wg.Done()
+				sem <- struct{}{}
+				defer func() { <-sem }()
+				if resp, err := client.Get(target); err == nil {
 					resp.Body.Close()
 				}
-			}(req)
+			}(delayURL)
 		}
 	}
 
-	// Wait for responses, then collect fresh latency data.
+	// Wait for all worker tasks to complete, then collect fresh latency data.
 	go func() {
-		time.Sleep(3 * time.Second)
+		wg.Wait()
+		time.Sleep(500 * time.Millisecond)
 		m.collectLatency()
 	}()
 }
