@@ -79,41 +79,79 @@ MiCube 全面采用 **[MetaCubeX/mihomo](https://github.com/MetaCubeX/mihomo) �
 
 ---
 
-## 📸 核心模块实机展示与特性详解 (Features & Showcase)
+## 📸 Test V0.91 五大生产力中枢实机展示与深度详解 (Features & Showcase)
 
-### 1. 现代化微光仪表盘 · 电信级全景实时监控
-深度统筹内核生命周期与系统性能，毫秒级响应，总内存常驻仅 **50MB 出头**（实机实测常驻约 52.4MB）。
+MiCube Test V0.91 告别了传统面板的选项卡堆砌杂乱，根据用户心智模型与操作频次，彻底重构为 **5 大高生产力中枢**，初次上手 3 秒即可一目了然：
+
+```mermaid
+graph LR
+    subgraph MiCube V0.91 五大生产力中枢
+        Hub1["📊 1. 仪表总览 (Dashboard)"]
+        Hub2["🌐 2. 节点分流 (Proxies Hub)"]
+        Hub3["📱 3. 穿透协同 (WireGuard Hub)"]
+        Hub4["🛡️ 4. 规则安全 (Rules Hub)"]
+        Hub5["⚙️ 5. 系统运维 (System Hub)"]
+    end
+
+    Hub2 -->|"子标签 1"| Sub1["节点选择 (折叠降噪 / 10s防抖)"]
+    Hub2 -->|"子标签 2"| Sub2["订阅配置 (脏状态保存 / 推荐出厂规则)"]
+
+    Hub4 -->|"子标签 1"| Sub3["217heidai 去广告 MRS 拦截"]
+    Hub4 -->|"子标签 2"| Sub4["实时连接流向监控"]
+    Hub4 -->|"子标签 3"| Sub5["接入设备治理"]
+
+    Hub5 -->|"子标签 1"| Sub6["核心与系统升级"]
+    Hub5 -->|"子标签 2"| Sub7["Telegram 手机机器人"]
+    Hub5 -->|"子标签 3"| Sub8["AI 智脑诊断体检"]
+    Hub5 -->|"子标签 4"| Sub9["KSpeeder 镜像加速"]
+```
+
+---
+
+### 1. 📊 仪表总览 (Dashboard) · 电信级全景实时监控与极低内存
+深度统筹内核生命周期与系统性能，毫秒级响应，总内存常驻仅 **50MB 出头**（实机实测常驻仅约 52.4MB）。
 
 <p align="center">
-  <img src="docs/images/desktop-dashboard.png" width="100%" alt="MiCube 现代化微光仪表盘全景" />
+  <img src="docs/images/desktop-dashboard.png" width="100%" alt="MiCube 0.91 仪表总览" />
 </p>
 
-- ⚡ **电信级宿主平台识别**：智能探查并展示 RouterOS v7.x、Linux VM 或 NAS Docker 官方纯矢量 Logo 识别徽章（如 `RouterOS v7.18.2 (stable)`）；
+- ⚡ **电信级宿主平台识别**：智能探查并展示 RouterOS v7.x、Linux VM 或 NAS Docker 官方矢量 Logo 识别徽章（如 `RouterOS v7.18.2 (stable)`）；
 - 📈 **60fps 高精度平滑网络流速波形**：实时呈现全屋设备的上行、下行瞬时流量与活跃连接链路；
 - 🛡️ **Supervisor 守护中枢**：支持一键启动、停止、热重载与守护进程崩溃自愈，开机自动托管。
 
 ---
 
-### 2. 节点选择与策略组管理 · 毫秒级单点并发测速与手动自由切选
-全新独立【节点选择】控制台，提供比肩顶级客户端的操控体验。
+### 2. 🌐 节点分流 (Proxies Hub) · 节点选择与订阅管理双核联动
+
+#### 🎯 子标签 A：【节点选择】—— 折叠卡片降噪、三色延迟胶囊与 10 秒防抖重测
+全新升级 Executive 极简视图，彻底告别数百上千节点瀑布流满屏翻找的折磨。
 
 <p align="center">
-  <img src="docs/images/desktop-proxies.png" width="100%" alt="MiCube 节点选择与策略组管理" />
+  <img src="docs/images/desktop-proxies.png" width="100%" alt="MiCube 0.91 节点选择与折叠卡片" />
 </p>
 
+- 📦 **策略组智能折叠降噪 (0.91 重磅)**：默认收拢各分组庞大的节点列表，首行以大字体直接标示当前生效出海节点、国旗/区旗与三色延迟胶囊；支持一键展开/收起，搭配即时节点检索过滤，清爽干练；
+- ⏱️ **延迟测速 10 秒防抖重测 (Anti-Flapping Retry)**：单次测速若遇偶发丢包或波动，自动触发 10 秒快速重测，杜绝瞬时抖动导致的虚假超时；
 - ⚡ **毫秒级单点与并发测速**：一键刷新整组节点延迟，三色延迟胶囊（<150ms 翠绿极速 / <300ms 暖橙良好 / 超时 绯红告警）；
-- 🎛️ **多层级策略组智能筛选**：支持「全部分组、自动选路 (url-test)、故障转移 (fallback)、直连、手动选择 (selector)」一键分类筛选；
-- 🎯 **一键无缝切换活动节点**：实时向底层 Mihomo 注入选路指令，即切即用，零网络抖动中断；
-- 🔍 **智能清洗假节点与精准计数**：彻底过滤机场公告、剩余流量等无效节点，精准识别 `1Gbps`、`10Gbps` 及海外地区节点，节点统计 100% 真实。
+- 🎛️ **多层级策略组智能筛选**：支持「全部分组、自动选路 (url-test)、故障转移 (fallback)、直连、手动选择 (selector)」一键分类筛选。
 
 ---
 
-### 3. 订阅管理与出口策略组 · 四大策略模式详解与选型指南
+#### 📥 子标签 B：【订阅与分流配置】—— 脏状态保存感知、一键恢复推荐规则与出口四大模式
 分流规则彻底摆脱传统手写配置痛点，可视化轻松掌控复杂分流策略。
 
 <p align="center">
-  <img src="docs/images/desktop-config.png" width="100%" alt="MiCube 订阅与分流规则配置" />
+  <img src="docs/images/desktop-config.png" width="100%" alt="MiCube 0.91 订阅与分流规则配置" />
 </p>
+
+- 💾 **配置脏状态实时感知 (Dirty State Tracking · 0.91 重磅)**：
+  - **有未保存改动时**：保存按钮秒级激活为**青蓝呼吸灯高亮 + 粒子发光阴影**，标示 `💾 保存并编译 (已修改)`；
+  - **无未保存修改时**：按钮自动呈现低调暗态与防误触禁用 `✔ 配置已是最新`，彻底消除是否生效的焦虑。
+- 🔄 **出厂推荐分流规则一键恢复 (0.91 重磅)**：无论如何调试修改规则，点击【🔄 恢复推荐规则】，随时秒级还原官方最佳 GeoIP/GeoSite/MRS 分流策略，同时**绝对安全保留**用户的机场订阅链接与 WireGuard 密钥！
+- 🌐 **国内直连显示真实 IP（黑科技）**：智能将国内大厂与局域网流量彻底绕过 Fake-IP 映射池，由国内 DNS 直接解析真实公网 IP 直连直出，**不占内核 CPU，跑满满载带宽**，BT/PT 与游戏联机零阻碍；
+- ⚡ **海外 QUIC (UDP 443) 优化**：智能阻断劣质 UDP，迫使 YouTube / Chrome 回退至 TCP TLS，享受节点 BBR 算法强力加速，彻底消除 4K 缓冲转圈与丢包。
+
+---
 
 #### 🧭 地区策略四大模式核心区别与选型决策指南 (小白必读)
 
@@ -124,59 +162,64 @@ MiCube 全面采用 **[MetaCubeX/mihomo](https://github.com/MetaCubeX/mihomo) �
 | **🌐 地区容灾**<br/>(如 `香港容灾`) | `fallback`<br/>灾备应急备选 | 专用于聚合该地区的多源备用线路、低倍率保底节点或次级机场链路，独立于主生产环境之外作为二级冷备份池。 | 灾备隔离<br/>(独立备选池) | **关键时刻救命兜底**：当遇到特殊时期、主力机场大面积遭遇 DDOS 攻击、或干线海缆突发故障全线翻红时，一键将出口切至该组秒级恢复通信。 | ⚠️ 平时作为冷备用，无需挂载所有日常高带宽下载业务。 |
 | **🎯 地区手动**<br/>(如 `香港手动`) | `select`<br/>人工定点锁定 | 纯静态人工单选组。用户在【节点选择】控制台选定哪个节点，流量就 **100% 且永久锁定在该节点**，系统绝不做任何自动化切换。 | 绝对人工控制<br/>(人工选定即锁定) | **外服联机电竞 / 定点流媒体解锁**：Steam / Epic / 瓦罗兰特 / Apex 游戏必须固定特定专线（如 IPLC 香港 01）；特定地区限定影视库定点解锁；网络排障抓包。 | ⚠️ 一旦该手动节点离线，系统不会自动替你切备用节点，需要人工干预重新选择。 |
 
-#### 💡 场景速查选型口诀：
-* **日常冲浪刷视频** ➔ 选 **⚡ 地区自动**（谁快用谁，流畅起播）；
-* **ChatGPT / 网银炒币** ➔ 选 **🛡️ 地区故转**（IP 坚固不跳，告别封号风控）；
-* **主机联机 / 电竞专线** ➔ 选 **🎯 地区手动**（锁定低抖动 IPLC，拒绝漂移掉线）；
-* **干线海缆故障 / 机场瘫痪** ➔ 选 **🌐 地区容灾**（多源备用线路一键救命）。
-
 ---
 
-- 🔄 **微动模式切换**：支持 `✎ / ▾` 微动按钮快速切换预设下拉与自定义手动输入，兼具易用性与扩展性；
-- 🌐 **国内直连显示真实 IP（黑科技）**：智能将国内大厂与局域网流量彻底绕过 Fake-IP 映射池，由国内 DNS 直接解析真实公网 IP 直连直出，**不占内核 CPU，跑满满载带宽**，BT/PT 与游戏联机零阻碍；
-- ⚡ **海外 QUIC (UDP 443) 优化**：智能阻断劣质 UDP，迫使 YouTube / Chrome 回退至 TCP TLS，享受节点 BBR 算法强力加速，彻底消除 4K 缓冲转圈与丢包。
-
----
-
-### 4. 217heidai 全网去广告与隐私防追踪 · 毫秒级直接丢弃
-集成全网权威反追踪规则库，还家庭一个清爽无污染的网络空间。
-
-<p align="center">
-  <img src="docs/images/desktop-adblock.png" width="100%" alt="MiCube 217heidai 去广告实时拦截引擎" />
-</p>
-
-- 🛑 **23.3 万条权威规则秒级检索**：集成 217heidai 权威二进制规则集（`adblockmihomo.mrs`）与 MetaCubeX 隐私库，加载逾 **233,481 条** 过滤规则；
-- 📊 **今日拦截计数与全局开关**：一键开启全屋防护，毫秒级 REJECT 阻断，零带宽损耗；
-- 🔍 **实时已拦截域名与请求流监控**：精准记录全屋手机（如 iPhone 16）、电脑（MacBook Pro）、电视（小米电视）触发的广告推送与隐私遥测，清晰可查。
-
----
-
-### 5. WireGuard 移动端内网穿透 · 外出手机一键扫码回航
+### 3. 📱 穿透协同 (WireGuard Hub) · 30 秒自愈看门狗、一键扫码穿透与烟花监控
 将 RouterOS 电信级底层能力与现代轻量级 UDP 穿透协议深度打通。
 
 <p align="center">
-  <img src="docs/images/desktop-wireguard.png" width="100%" alt="MiCube WireGuard 移动端穿透与二维码扫码" />
+  <img src="docs/images/desktop-wireguard.png" width="100%" alt="MiCube 0.91 WireGuard 穿透与扫码" />
 </p>
 
+- 🛡️ **30 秒超时自愈看门狗与「以后再说」秒级跳过**：彻底攻克初始化向导在校准核心接口时遭遇的网络卡顿，超时 30 秒自动唤醒自愈选项，并随时提供【以后再说】快速跳过，绝不阻塞全局正常使用；
 - 📱 **一键生成手机 WireGuard 二维码**：无需繁琐手动抄写密钥与 Endpoint，点击「扫码配置」手机一照即刻配对；
+- 🎆 **握手雷达探测与绚丽烟花庆祝**：手机扫码连接成功发出首个握手包瞬间，全屏绽放绚丽粒子烟花庆祝，直观呈现双向收发流量与握手毫秒数；
 - 🔄 **端点无状态与无感热漫游**：外出从 Wi-Fi 切换到 5G 移动蜂窝网络，IP 突变会话不断流；
 - 🔋 **内核级 UDP 极速响应**：手机全天挂载后台几乎零额外耗电、机身不发热；
 - 🛡️ **外出如在家，继承全局去广告与分流**：在外连接公共 Wi-Fi 时，所有流量安全回航经由家中 MiCube 处理，外出同样享受纯净高速网络。
 
 ---
 
-### 6. 双模极客响应式设计 · 手机移动端极致优化
+### 4. 🛡️ 规则安全 (Rules Hub) · 217heidai 去广告拦截与全屋流向透视
+集成全网权威反追踪规则库，还家庭一个清爽无污染的网络空间。
+
+<p align="center">
+  <img src="docs/images/desktop-adblock.png" width="100%" alt="MiCube 0.91 规则安全与去广告拦截" />
+</p>
+
+- 🛑 **23.3 万条权威规则秒级检索**：集成 217heidai 权威二进制规则集（`adblockmihomo.mrs`）与 MetaCubeX 隐私库，加载逾 **233,481 条** 过滤规则；
+- 📊 **今日拦截计数与全局开关**：一键开启全屋防护，毫秒级 REJECT 阻断，零带宽损耗；
+- 🔍 **实时已拦截域名与请求流监控**：精准记录全屋手机（如 iPhone 16）、电脑（MacBook Pro）、电视（小米电视）触发的广告推送与隐私遥测，清晰可查；
+- 🌐 **实时流向透视与接入设备治理**：一眼看清局域网接入设备的活跃 IP、MAC 地址与分流走向。
+
+---
+
+### 5. ⚙️ 系统运维 (System Hub) · 固件升级、TG 机器人、AI 智脑与多源镜像加速
+深度收纳软路由运维与外延赋能工具。
+
+<p align="center">
+  <img src="docs/images/desktop-system.png" width="100%" alt="MiCube 0.91 系统运维中枢" />
+</p>
+
+- 🔄 **核心与系统升级**：支持 RouterOS 固件自动探针、Mihomo 内核热升级、以及 MiCube 面板单二进制一键自升级；
+- 📱 **Telegram 运维机器人**：外出在手机 TG 发送指令即可查询家中网络流速、切换活动节点、执行网络体检或重启核心；
+- 🧠 **AI 智脑自愈体检 (OpenCode Zen / 通义千问 / DeepSeek)**：实时感知 RouterOS 拓扑与路由遥测，一键诊断网络隐患与故障自愈；
+- ⚡ **KSpeeder 多源镜像加速**：专为软路由与 NAS 打造，彻底解决国内 Docker 镜像拉取失败、GitHub 资源下载超时、订阅规则更新缓慢痛点。
+
+---
+
+### 6. 📱 移动端专属 5 控主控坞 · 双模极客单手流畅掌控
 无论在大屏电脑前还是躺在沙发握着手机，都能获得丝滑一致的掌上运维体验。
 
 <p align="center">
-  <img src="docs/images/mobile-dashboard.png" width="320" alt="MiCube 移动端仪表盘" />
+  <img src="docs/images/mobile-dashboard.png" width="320" alt="MiCube 0.91 移动端仪表盘" />
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="docs/images/mobile-proxies.png" width="320" alt="MiCube 移动端节点选择" />
+  <img src="docs/images/mobile-proxies.png" width="320" alt="MiCube 0.91 移动端节点选择" />
 </p>
 
 - 📱 **灵动微光顶栏**：Mini 胶囊实时展现当前状态、运行时间与宿主平台徽章；
-- 🎛️ **极客悬浮毛玻璃 Dock 栏**：专为移动端单手操作优化，完美避开 iPhone 刘海屏与底栏 Home 条；
-- 💻 **全功能不阉割**：手机端直接支持节点测速切选、策略组切换、查看拦截流与重启核心。
+- 🎛️ **极客悬浮毛玻璃 5 控 Dock 栏**：对齐 5 大生产力中枢，专为单手操作优化，完美避开 iPhone 刘海屏与底栏 Home 条；
+- 💻 **全功能不阉割**：手机端直接支持节点测速切选、折叠展开、查看拦截流与重启核心。
 
 ---
 
@@ -313,18 +356,107 @@ graph TD
 
 ---
 
-## 🚀 新手极简部署指南 (Step-by-Step Installation)
+## 🚀 各平台安装脚本与全场景部署详实指南 (Installation & Setup)
 
-支持主流 NAS 与软路由系统，镜像已支持 **AMD64 (x86_64) 与 ARM64 双架构**：
-- **Docker Hub 公共镜像（全平台搜索通用）**：`fyasshole/micube:latest`
-- **GitHub GHCR 备用镜像**：`ghcr.io/zyeyefyass/micube:latest`
-- **离线安装包（无需外网）**：前往 [Releases 页面](https://github.com/zyeyefyass/MiCube/releases) 下载纯 `.tar` 离线镜像包：`MiCube-amd64.tar` 或 `MiCube-arm64.tar`（无需繁琐二次解压，直接导入）。
+MiCube 为不同技术背景与硬件环境的用户提供了 **极速脚本一键装**、**WinBox 终端脚本导入**、**飞牛 fnOS 专属图形化**、**PVE 特权容器直通** 以及 **纯 Go 单二进制裸机守护** 等全套方案。系统镜像原生支持 **AMD64 (x86_64) 与 ARM64 双架构**。
 
 ---
 
-<details open>
-<summary><b>🌟 方案一：飞牛私有云 (fnOS) Docker 部署教程 (小白首选 · 点击展开/收起) ▾</b></summary>
-<br/>
+### 📜 方案一：官方极速一键 Shell 脚本部署 (`install.sh`) —— 强烈推荐 🌟
+
+专为 **飞牛私有云 (fnOS)**、**PVE/LXC 宿主机**、**Debian / Ubuntu / CentOS** 等通用 Linux 环境打造的全自动化部署脚本。
+
+#### 1. 一键执行命令
+```bash
+# 联网全自动一键安装（自动探查环境、装配 Docker、创建 TUN 网卡、开辟存储池并启动）
+curl -fsSL https://github.com/zyeyefyass/MiCube/releases/download/Test-V0.91/install.sh | sh
+```
+
+#### 2. `install.sh` 脚本核心工作原理与全自动行为（小白无需干预）
+脚本在执行过程中会自动完成以下 7 大关键闭环，全程零人工阻碍：
+1. **CPU 架构自适应探测**：自动识别 `x86_64/amd64` 或 `aarch64/arm64`，并锁定对应架构镜像；
+2. **Docker 运行时自检与自动安装**：若宿主机尚未安装 Docker，自动调用官方源完成引擎装配；
+3. **存储空间智能嗅探与专属对齐**：
+   - 针对 **飞牛私有云 (fnOS)**：自动将数据持久化路径对齐到用户主存储池 `/vol1/1000/micube`（确保即便 NAS 重装或固件升级，配置与 WireGuard 密钥**永不丢失**）；
+   - 针对 **通用 Linux**：自动创建并对齐到 `/opt/MiCube` 标准工作目录；
+4. **宿主 TUN 虚拟网卡环境装配**：自动创建 `/dev/net/tun` 设备节点并放行 `0666` 读写权限；
+5. **开启宿主机内核 IPv4 数据包转发**：自动执行 `sysctl -w net.ipv4.ip_forward=1`，从根本上杜绝容器网络丢包；
+6. **离线镜像秒级优先导入（黑科技）**：
+   - 脚本优先检测当前目录下是否存在离线镜像包（`MiCube-${ARCH}.tar` 或 `micube-${ARCH}.tar`）；
+   - 若检测到离线包，**直接执行 `docker load -i` 秒级载入，完全不耗费任何外网流量**！若未检测到离线包，则平滑回退至官方 Docker Hub 公共镜像拉取；
+7. **高权限 Host 模式容器一键启动**：自动清理旧版本容器，以 `--network=host --privileged` 方式启动并监听 2026 端口。
+
+#### 3. 极速纯离线安装小妙招 (国内网络受限首选)
+若您的 NAS 或服务器处于国内弱网或无法顺畅访问 Docker Hub，可采用「纯离线秒级冷启」：
+```bash
+# 1. 在 Release 页面下载两个文件放至服务器同一目录：
+#    - install.sh
+#    - MiCube-amd64.tar (如果是 ARM 机器下载 MiCube-arm64.tar)
+# 2. 在该目录下直接运行：
+chmod +x install.sh && ./install.sh
+# 脚本将在 3 秒内完成镜像离线导入并立即启动，完全免去等待下载的烦恼！
+```
+
+---
+
+### 📜 方案二：MikroTik RouterOS v7 终端一键脚本 (`install-routeros.rsc`)
+
+专为 **MikroTik 官方硬件路由器（CCR / RB / hEX / CHR / x86）** 的 RouterOS v7 Container 容器环境定制。
+
+#### 1. 脚本内容与工作机制解析
+`install-routeros.rsc` 是标准的 WinBox / RouterOS 命令流文件，底层严格包含以下 3 大步骤：
+```routeros
+# ==============================================================================
+# MiCube RouterOS v7 官方一键容器初始化脚本 (install-routeros.rsc)
+# ==============================================================================
+
+# 1. 创建 VETH 专用虚拟网卡并加入 LAN 网桥 (默认分配 IP: 192.168.88.2/24，网关指向 ROS: 192.168.88.1)
+/interface/veth/add name=micube address=192.168.88.2/24 gateway=192.168.88.1
+/interface/bridge/port add bridge=bridge interface=micube
+
+# 2. 指定临时提取路径 (请确认磁盘名为 disk1 或 usb1)
+/container/config/set tmpdir=disk1/pull
+
+# 3. 创建容器实例并配置自启 (自动挂载当前磁盘下的 MiCube-amd64.tar 离线镜像)
+/container/add file=disk1/MiCube-amd64.tar interface=micube root-dir=disk1/micube \
+    envlist="" hostname=MiCube logging=yes start-on-boot=yes
+
+# 4. 立即启动 MiCube 容器
+/container/start [find where interface=micube]
+```
+
+#### 2. 三种使用方法（任选其一）
+
+- **方法 A：WinBox 拖拽与 Terminal 导入（最推荐 · 零敲错风险）**：
+  1. 在电脑上从 [Test-V0.91 Releases](https://github.com/zyeyefyass/MiCube/releases) 下载两个文件：
+     - `install-routeros.rsc`
+     - `MiCube-amd64.tar` *(ARM 架构设备请下载 `MiCube-arm64.tar` 并将文件名保持或修改一致)*；
+  2. 打开 WinBox -> 进入左侧【Files】菜单，将这两个文件直接拖拽上传到 RouterOS 的扩展存储盘根目录（如 `disk1`）；
+  3. 打开 WinBox 顶部的【Terminal】终端，输入执行命令：
+     ```routeros
+     /import disk1/install-routeros.rsc
+     ```
+  4. 终端显示 `Script file loaded and executed successfully` 即表示容器构建完毕并已启动！
+
+- **方法 B：RouterOS 终端在线拉取导入**：
+  在 WinBox Terminal 直接执行：
+  ```routeros
+  /tool fetch url="https://github.com/zyeyefyass/MiCube/releases/download/Test-V0.91/install-routeros.rsc" dst-path=disk1/install-routeros.rsc;
+  /import disk1/install-routeros.rsc
+  ```
+
+- **方法 C：根据自身网段自定义修改后执行**：
+  若您的 RouterOS 局域网网段不是默认的 `192.168.88.x`（例如是 `192.168.1.x`），或者您的外挂硬盘名称是 `usb1` 而非 `disk1`：
+  1. 用记事本打开 `install-routeros.rsc`；
+  2. 将 `192.168.88.2/24` 修改为您局域网的未占用 IP（如 `192.168.1.200/24`），网关 `192.168.88.1` 改为您 ROS 的真实 IP（如 `192.168.1.1`）；
+  3. 将所有的 `disk1/` 批量替换为您的真实磁盘名（如 `usb1/`）；
+  4. 复制修改后的全部内容，直接右键粘贴到 WinBox Terminal 中回车执行即可。
+
+访问控制台：浏览器输入 **`http://192.168.88.2:2026`**（或您自定义的 IP）。
+
+---
+
+### 📜 方案三：飞牛私有云 (fnOS) 专属 Docker 部署指南 (小白与家庭 NAS 首选)
 
 > [!TIP]
 > 推荐直接使用 **方法 A（图形化界面）**，全程鼠标点击，不需敲击任何一行黑底代码！
@@ -333,7 +465,7 @@ graph TD
 
 1. **下载或导入镜像（二选一）**：
    - **在线搜索拉取**：打开飞牛桌面 -> 进入【Docker】应用 -> 点击左侧【镜像仓库】 -> 顶部搜索栏输入 **`fyasshole/micube`** -> 点击搜索并下载（版本选择 `latest`）。
-   - **离线本地导入**：若 NAS 下载外网较慢，可在电脑前往 [Releases 页面](https://github.com/zyeyefyass/MiCube/releases) 直接下载 **`MiCube-amd64.tar`**；在飞牛 Docker【本地镜像】界面点击【导入】，直接选择该 `.tar` 文件上传（免去二次解压烦恼！），1 秒极速导入！
+   - **离线本地导入（秒级冷启）**：若 NAS 下载外网较慢，可在电脑前往 [Releases 页面](https://github.com/zyeyefyass/MiCube/releases) 直接下载 **`MiCube-amd64.tar`**；在飞牛 Docker【本地镜像】界面点击【导入】，选择该 `.tar` 文件上传（免去二次解压烦恼！），1 秒极速导入！
 2. **创建容器**：
    - 在【本地镜像】列表中找到下载好的 `micube`，点击右侧的【创建容器】。
    - **容器名称**：填写 `micube`；
@@ -354,7 +486,7 @@ graph TD
 
 ---
 
-#### 方法 B：飞牛【项目 (Compose)】一键部署
+#### 方法 B：飞牛【项目 (Compose)】一键编排部署
 
 1. 打开飞牛【Docker】-> 点击左侧【项目】-> 点击【创建项目】；
 2. 项目名称填写 `micube`，在配置文本框中粘贴如下代码（**支持飞牛标准物理路径或相对路径**）：
@@ -381,15 +513,11 @@ services:
 ```
 3. 点击【构建并启动】，等待 3 秒即可完成部署。
 
-</details>
+---
 
-<br/>
+### 📜 方案四：Proxmox VE (PVE) LXC / CT 容器极速部署
 
-<details>
-<summary><b>⚡ 方案二：Proxmox VE (PVE) LXC / CT 容器极速部署 (点击展开/收起) ▾</b></summary>
-<br/>
-
-在 PVE 中采用 **LXC (CT) 容器** 运行，内存仅占 ~80MB，性能损耗为 0。
+在 PVE 中采用 **LXC (CT) 特权容器** 运行，内存仅占 ~50MB 出头，性能损耗为 0。
 
 > [!WARNING]
 > **PVE 新手三大避坑红线：**
@@ -430,62 +558,62 @@ lxc.apparmor.profile: unconfined
 
 #### 步骤 4：进入容器并启动 MiCube
 1. 在 PVE 网页启动该容器，点击进入【控制台 (Console)】，输入 root 及你设定的密码登录；
-2. 开启内核数据包转发并运行容器：
+2. 直接执行方案一的一键脚本：
 ```bash
-# 1. 开启 IPv4 转发
-echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
-sysctl -p
-
-# 2. 安装 Docker (如已安装可跳过)
-curl -fsSL https://get.docker.com | sh
-
-# 3. 运行 MiCube 容器
-docker run -d \
-  --name micube \
-  --restart always \
-  --net host \
-  --privileged \
-  -v /dev/net/tun:/dev/net/tun \
-  -v ./data:/opt/MiCube/data \
-  -v ./etc:/opt/MiCube/etc \
-  fyasshole/micube:latest
+curl -fsSL https://github.com/zyeyefyass/MiCube/releases/download/Test-V0.91/install.sh | sh
 ```
 3. 打开浏览器访问：`http://你刚才分配给CT容器的IP:2026`（例如 `http://192.168.1.200:2026`）。
 
-</details>
+---
 
-<br/>
+### 📜 方案五：纯 Go 单二进制免容器裸机部署 (`micube-server`)
 
-<details>
-<summary><b>🌐 方案三：MikroTik RouterOS v7 原生容器一键部署 (点击展开/收起) ▾</b></summary>
-<br/>
+适合不想安装 Docker、追求极致极简的软路由（如 OpenWrt）、二手工控机（单核 512M）或物理 Linux 主机。
 
-在 RouterOS WinBox 打开 **Terminal** 终端，将参数中的 IP 替换为您 RouterOS 的实际局域网网段执行：
+#### 1. 下载二进制并赋权
+```bash
+# 1. 创建工作目录
+mkdir -p /opt/MiCube/bin /opt/MiCube/data /opt/MiCube/etc
+cd /opt/MiCube/bin
 
-```routeros
-# 1. 创建专用虚拟网卡并加入默认网桥 (例如你的 ROS 网段为 192.168.88.x)
-/interface/veth/add name=micube address=192.168.88.2/24 gateway=192.168.88.1
-/interface/bridge/port add bridge=bridge interface=micube
+# 2. 下载对应架构二进制 (x86_64 示例)
+curl -fsSL -o micube-server https://github.com/zyeyefyass/MiCube/releases/download/Test-V0.91/micube-server-linux-amd64
+chmod +x micube-server
 
-# 2. 从 Release 页面下载 MiCube-amd64.tar (x86) 或 MiCube-arm64.tar (ARM) 上传至 ROS 磁盘
-# 在 WinBox -> Files 确认磁盘挂载名称 (通常为 disk1 或 usb1)
-/container/config/set tmpdir=disk1/pull
-/container/add file=disk1/MiCube-amd64.tar interface=micube root-dir=disk1/micube \
-    envlist="" hostname=MiCube logging=yes start-on-boot=yes
-
-# 3. 启动并运行
-/container/start [find where interface=micube]
+# 3. 开启数据转发
+sysctl -w net.ipv4.ip_forward=1
 ```
 
-访问地址：👉 **`http://192.168.88.2:2026`**
+#### 2. 配置 Systemd 开机自启守护服务
+创建服务定义文件 `/etc/systemd/system/micube.service`：
+```ini
+[Unit]
+Description=MiCube Proprietary High-Performance Gateway
+After=network.target
 
-</details>
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/MiCube
+ExecStart=/opt/MiCube/bin/micube-server
+Restart=always
+RestartSec=3
+LimitNOFILE=65535
 
-<br/>
+[Install]
+WantedBy=multi-user.target
+```
+启动并加入开机自启：
+```bash
+systemctl daemon-reload
+systemctl enable --now micube
+systemctl status micube
+```
+访问控制台：浏览器输入 **`http://服务器IP:2026`**。
 
-<details>
-<summary><b>💻 方案四：通用 Linux 服务器 / 虚拟云主机 Docker 部署 (点击展开/收起) ▾</b></summary>
-<br/>
+---
+
+### 📜 方案六：通用 Linux 服务器标准 Docker run 运行命令
 
 ```bash
 docker run -d \
@@ -496,8 +624,8 @@ docker run -d \
   --cap-add NET_ADMIN \
   --cap-add NET_RAW \
   -v /dev/net/tun:/dev/net/tun \
-  -v ./data:/opt/MiCube/data \
-  -v ./etc:/opt/MiCube/etc \
+  -v /opt/MiCube/data:/opt/MiCube/data \
+  -v /opt/MiCube/etc:/opt/MiCube/etc \
   -e TZ=Asia/Shanghai \
   -e PORT=2026 \
   fyasshole/micube:latest
