@@ -1,0 +1,15 @@
+services:
+  singcube:
+    image: ghcr.io/zyeyefyass/singcube:latest
+    container_name: singcube
+    restart: always
+    network_mode: host
+    privileged: true
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./data:/opt/SingCube/data
+      - ./etc:/opt/SingCube/etc
+    environment:
+      - TZ=Asia/Shanghai
+      - PORT=2026

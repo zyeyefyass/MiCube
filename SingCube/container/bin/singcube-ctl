@@ -1,0 +1,64 @@
+#!/bin/sh
+ACTION="$1"
+SINGCUBE_ROOT="/opt/SingCube"
+BIN="$SINGCUBE_ROOT/bin/sing-box"
+ETC="$SINGCUBE_ROOT/etc"
+CONF="$ETC/config.json"
+DATA="$SINGCUBE_ROOT/data"
+PID_FILE="$DATA/singbox.pid"
+LOG_FILE="$DATA/singbox.log"
+AUTOSTART_FILE="$DATA/autostart"
+
+mkdir -p "$DATA" "$ETC"
+
+fix_ros_ip_rules() {
+  command -v ip >/dev/null 2>&1 || return 0
+  while ip rule show | grep -Eq '^(1|2|3):\s+from all lookup (local|main|default)'; do
+    pref=$(ip rule show | grep -E '^(1|2|3):\s+from all lookup (local|main|default)' | head -n1 | cut -d: -f1)
+    ip rule del pref "$pref" 2>/dev/null || break
+  done
+  ip rule show | grep -Eq 'pref 200 .*lookup local' || ip rule add pref 200 from all lookup local 2>/dev/null || true
+  ip rule show | grep -Eq 'pref 32766 .*lookup main' || ip rule add pref 32766 from all lookup main 2>/dev/null || true
+}
+
+ensure_tun_device() {
+  if [ ! -c /dev/net/tun ]; then
+    mkdir -p /dev/net
+    mknod /dev/net/tun c 10 200 2>/dev/null || true
+    chmod 666 /dev/net/tun 2>/dev/null || true
+  fi
+}
+
+start_core() {
+  [ -x "$BIN" ] || exit 1
+  [ -f "$CONF" ] || exit 1
+  fix_ros_ip_rules
+  ensure_tun_device
+  export GOMEMLIMIT="50MiB"
+  export GOGC=30
+  export GODEBUG=madvdontneed=1
+  "$BIN" run -c "$CONF" -D "$ETC" >> "$LOG_FILE" 2>&1 &
+  PID=$!
+  echo "$PID" > "$PID_FILE"
+  sleep 1
+  kill -0 "$PID" 2>/dev/null && return 0 || return 1
+}
+
+stop_core_quiet() {
+  if [ -f "$PID_FILE" ]; then
+    PID=$(cat "$PID_FILE" 2>/dev/null)
+    [ -n "$PID" ] && kill -TERM "$PID" 2>/dev/null || true
+    rm -f "$PID_FILE"
+  fi
+  pkill -x sing-box 2>/dev/null || true
+}
+
+case "$ACTION" in
+  start) start_core ;;
+  stop) stop_core_quiet ;;
+  restart) stop_core_quiet; start_core ;;
+  status) [ -f "$PID_FILE" ] && exit 0 || exit 1 ;;
+  enable) touch "$AUTOSTART_FILE" ;;
+  disable) rm -f "$AUTOSTART_FILE" ;;
+  *) echo "Usage: $0 {start|stop|restart|status|enable|disable}" >&2; exit 1 ;;
+esac

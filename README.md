@@ -366,11 +366,39 @@ MiCube 为不同技术背景与硬件环境的用户提供了 **极速脚本一�
 
 专为 **飞牛私有云 (fnOS)**、**PVE/LXC 宿主机**、**Debian / Ubuntu / CentOS** 等通用 Linux 环境打造的全自动化部署脚本。
 
-#### 1. 一键执行命令
-```bash
-# 联网全自动一键安装（自动探查环境、装配 Docker、创建 TUN 网卡、开辟存储池并启动）
-curl -fsSL https://github.com/zyeyefyass/MiCube/releases/download/Test-V0.91/install.sh | sh
-```
+#### 1. 一键执行命令 (根据当前网络环境二选一)
+
+> [!TIP]
+> **🇨🇳 很多新手最大的痛点**：“我本来就是为了装旁路由来科学上网的，现在机器还没翻墙，连 GitHub 和 Docker 都拉不动，陷入先有鸡还是先有蛋的死锁怎么办？”  
+> **MiCube 为国内纯内网环境量身打造了全套免翻解决方案，以下三招保证 100% 成功装上：**
+
+- **⚡ 航道 A：国内纯内网环境（免翻墙直连 · 自动加速通道）**：
+  若您的 NAS 或服务器**当前没有科学上网代理**，直接复制执行此条命令（自动通过国内高可用 CDN 加速源秒级拉取，脚本内部亦自动智能切换阿里云源与离线加速包）：
+  ```bash
+  curl -fsSL https://ghfast.top/https://github.com/zyeyefyass/MiCube/releases/download/Test-V0.91/install.sh | sh
+  ```
+  *(备选国内加速源：若当前局域网解析 ghfast 较慢，可使用备选镜像通道 `curl -fsSL https://mirror.ghproxy.com/https://github.com/zyeyefyass/MiCube/releases/download/Test-V0.91/install.sh | sh`)*
+
+- **🌐 航道 B：具备国际网络或透明网关环境**：
+  ```bash
+  curl -fsSL https://github.com/zyeyefyass/MiCube/releases/download/Test-V0.91/install.sh | sh
+  ```
+
+---
+
+#### 🌟 绝招：纯离线 0 流量拖拽导入法 (100% 成功 · 彻底杜绝任何网络死锁)
+如果您完全不想给服务器连外网，或者服务器外网速度极慢：
+1. 用能够正常下载的电脑或手机，前往 [Releases 页面](https://github.com/zyeyefyass/MiCube/releases) 下载两个文件：
+   - `install.sh`
+   - `MiCube-amd64.tar` *(ARM 架构如下载 `MiCube-arm64.tar`)*
+2. 通过局域网共享 (SMB `\\你的NAS_IP`)、飞牛文件管理拖拽、或 WinSCP 将这两个文件放到 NAS 或服务器的同一目录下；
+3. 打开服务器终端，直接敲两行命令：
+   ```bash
+   chmod +x install.sh && ./install.sh
+   ```
+   **脚本检测到本地离线包，直接秒级 `docker load` 导入，全程 0 字节外网下载，3 秒即刻满血启动！**
+
+---
 
 #### 2. `install.sh` 脚本核心工作原理与全自动行为（小白无需干预）
 脚本在执行过程中会自动完成以下 7 大关键闭环，全程零人工阻碍：

@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Background Space Glow -->
+    <radialGradient id="spaceGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.25"/>
+      <stop offset="60%" stop-color="#3b0764" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#090714" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Outer HyperCube Hex Gradients -->
+    <linearGradient id="cyberPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+
+    <linearGradient id="neonPink" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+
+    <!-- Emerald Core Gradient -->
+    <linearGradient id="emeraldCore" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+
+    <!-- Soft Glow Filter -->
+    <filter id="hyperGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <style>
+      @keyframes pulseSlow {
+        0%, 100% { transform: scale(1); opacity: 0.9; }
+        50% { transform: scale(1.04); opacity: 1; filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.7)); }
+      }
+      @keyframes spinOrb {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes spinReverse {
+        0% { transform: rotate(360deg); }
+        100% { transform: rotate(0deg); }
+      }
+      .hypercube-outer {
+        animation: pulseSlow 4s ease-in-out infinite;
+        transform-origin: center;
+      }
+      .orbit-ring-1 {
+        animation: spinOrb 16s linear infinite;
+        transform-origin: center;
+      }
+      .orbit-ring-2 {
+        animation: spinReverse 22s linear infinite;
+        transform-origin: center;
+      }
+    </style>
+  </defs>
+
+  <!-- Ambient Glow Background -->
+  <circle cx="100" cy="100" r="95" fill="url(#spaceGlow)"/>
+
+  <!-- Orbit Stream 1 (Neon Pink & Violet Dots) -->
+  <g class="orbit-ring-1">
+    <circle cx="100" cy="100" r="82" fill="none" stroke="#7c3aed" stroke-width="1.2" stroke-dasharray="8 16" opacity="0.4"/>
+    <circle cx="182" cy="100" r="3" fill="#ec4899" filter="url(#hyperGlow)"/>
+    <circle cx="18" cy="100" r="2.5" fill="#a855f7" filter="url(#hyperGlow)"/>
+  </g>
+
+  <!-- Orbit Stream 2 (Emerald Quantum Dots) -->
+  <g class="orbit-ring-2">
+    <circle cx="100" cy="100" r="72" fill="none" stroke="#10b981" stroke-width="1" stroke-dasharray="6 20" opacity="0.35"/>
+    <circle cx="100" cy="28" r="3.2" fill="#34d399" filter="url(#hyperGlow)"/>
+    <circle cx="100" cy="172" r="2.2" fill="#10b981"/>
+  </g>
+
+  <!-- Outer Isometric 3D HyperCube Frame -->
+  <g class="hypercube-outer" filter="url(#hyperGlow)">
+    <!-- Top Face -->
+    <polygon points="100,32 152,62 100,92 48,62" fill="url(#cyberPurple)" opacity="0.85" stroke="#c084fc" stroke-width="1.5"/>
+    <!-- Left Face -->
+    <polygon points="48,62 100,92 100,154 48,124" fill="url(#neonPink)" opacity="0.75" stroke="#e879f9" stroke-width="1.5"/>
+    <!-- Right Face -->
+    <polygon points="100,92 152,62 152,124 100,154" fill="#4c1d95" opacity="0.9" stroke="#a855f7" stroke-width="1.5"/>
+
+    <!-- Inner Floating Quantum Emerald Core (sing-box Heart) -->
+    <!-- Inner Top Face -->
+    <polygon points="100,68 126,83 100,98 74,83" fill="#34d399" opacity="0.95" stroke="#6ee7b7" stroke-width="1.2"/>
+    <!-- Inner Left Face -->
+    <polygon points="74,83 100,98 100,128 74,113" fill="#10b981" opacity="0.9" stroke="#34d399" stroke-width="1.2"/>
+    <!-- Inner Right Face -->
+    <polygon points="100,98 126,83 126,113 100,128" fill="#047857" opacity="0.95" stroke="#10b981" stroke-width="1.2"/>
+
+    <!-- Geometric Connecting Tesseract Beams -->
+    <line x1="100" y1="32" x2="100" y2="68" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.8"/>
+    <line x1="48" y1="62" x2="74" y2="83" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.8"/>
+    <line x1="152" y1="62" x2="126" y2="83" stroke="#c084fc" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.8"/>
+    <line x1="100" y1="154" x2="100" y2="128" stroke="#34d399" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.8"/>
+    <line x1="48" y1="124" x2="74" y2="113" stroke="#ec4899" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.8"/>
+    <line x1="152" y1="124" x2="126" y2="113" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.8"/>
+
+    <!-- Center Singularity Power Node -->
+    <circle cx="100" cy="98" r="4.5" fill="#ffffff" filter="url(#hyperGlow)"/>
+    <circle cx="100" cy="98" r="2.5" fill="#67e8f9"/>
+  </g>
+</svg>

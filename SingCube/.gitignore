@@ -1,0 +1,22 @@
+# Dependencies
+/web/dist/
+!/server/internal/webui/dist/
+
+# Binaries
+*.exe
+/server/singcube
+/server/singcube-server
+
+# Local runtime data
+data/
+etc/
+subs/
+*.sqlite
+*.log
+*.pid
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

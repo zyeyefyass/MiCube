@@ -1,11 +1,28 @@
 #!/bin/sh
 # ==============================================================================
-# MiCube 官方极速一键部署脚本 (Docker / 飞牛 fnOS / PVE / Linux)
+# MiCube 官方极速一键部署脚本 (国内免翻加速 / 飞牛 fnOS / PVE / Linux)
 # 架构支持: AMD64 (x86_64) / ARM64 (AArch64)
 # ==============================================================================
 set -e
 
-echo "🧊 正在检测系统环境与依赖..."
+echo "🧊 正在检测系统环境与网络连通性..."
+
+# 0. 智能检测国内网络与加速镜像源
+GH_PREFIX=""
+if ! curl -fsSL -m 3 https://api.github.com >/dev/null 2>&1; then
+  echo "⚡ 检测到当前处于中国大陆网络或无法直接直连 GitHub，自动启用国内极速加速镜像通道..."
+  # 探测当前最快的高速 GitHub 反代加速节点
+  if curl -fsSL -m 3 https://ghfast.top >/dev/null 2>&1; then
+    GH_PREFIX="https://ghfast.top/"
+  elif curl -fsSL -m 3 https://mirror.ghproxy.com >/dev/null 2>&1; then
+    GH_PREFIX="https://mirror.ghproxy.com/"
+  elif curl -fsSL -m 3 https://ghproxy.cn >/dev/null 2>&1; then
+    GH_PREFIX="https://ghproxy.cn/"
+  else
+    GH_PREFIX="https://ghfast.top/"
+  fi
+  echo "✅ 已锁定国内加速通道: ${GH_PREFIX}"
+fi
 
 # 1. 检测架构
 ARCH=$(uname -m)
@@ -17,10 +34,15 @@ esac
 
 echo "✅ 检测到系统架构: $MICUBE_ARCH"
 
-# 2. 检测 Docker 环境
+# 2. 检测 Docker 环境 (国内网络智能回退至阿里云源)
 if ! command -v docker >/dev/null 2>&1; then
   echo "⚠️ 未检测到 Docker，正在自动安装 Docker..."
-  curl -fsSL https://get.docker.com | sh
+  if [ -n "$GH_PREFIX" ]; then
+    echo "⚡ 正在通过国内加速源极速安装 Docker..."
+    curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+  else
+    curl -fsSL https://get.docker.com | sh
+  fi
 fi
 
 # 3. 准备宿主持久化目录与 TUN 虚拟网卡
@@ -52,20 +74,30 @@ sysctl -w net.ipv4.ip_forward=1 >/dev/null 2>&1 || true
 echo "🚀 正在准备 MiCube 高性能网关镜像..."
 IMAGE_NAME="micube:latest"
 
+# 优先匹配本地离线包
 if [ -f "MiCube-${MICUBE_ARCH}.tar" ]; then
-  echo "📦 检测到本地离线镜像包 MiCube-${MICUBE_ARCH}.tar，正在秒级导入..."
+  echo "📦 检测到本地离线镜像包 MiCube-${MICUBE_ARCH}.tar，正在秒级导入 (0流量)..."
   docker load -i "MiCube-${MICUBE_ARCH}.tar"
   IMAGE_NAME="micube:${MICUBE_ARCH}"
 elif [ -f "micube-${MICUBE_ARCH}.tar" ]; then
-  echo "📦 检测到本地离线镜像包 micube-${MICUBE_ARCH}.tar，正在秒级导入..."
+  echo "📦 检测到本地离线镜像包 micube-${MICUBE_ARCH}.tar，正在秒级导入 (0流量)..."
   docker load -i "micube-${MICUBE_ARCH}.tar"
   IMAGE_NAME="micube:${MICUBE_ARCH}"
 elif [ -f "micube.tar" ]; then
-  echo "📦 检测到本地离线镜像包 micube.tar，正在秒级导入..."
+  echo "📦 检测到本地离线镜像包 micube.tar，正在秒级导入 (0流量)..."
   docker load -i "micube.tar"
 else
-  echo "🌐 正在拉取 MiCube 官方容器镜像..."
-  docker pull ghcr.io/zyeyefyass/micube:latest 2>/dev/null && IMAGE_NAME="ghcr.io/zyeyefyass/micube:latest" || IMAGE_NAME="fyasshole/micube:latest"
+  # 本地无离线包，若有加速镜像源，先尝试从国内加速下载离线包，彻底免去 Docker Hub 封锁
+  TAR_URL="${GH_PREFIX}https://github.com/zyeyefyass/MiCube/releases/download/Test-V0.91/MiCube-${MICUBE_ARCH}.tar"
+  echo "🌐 正在从高速源获取 MiCube-${MICUBE_ARCH}.tar 离线镜像..."
+  if curl -fL --progress-bar "$TAR_URL" -o "MiCube-${MICUBE_ARCH}.tar"; then
+    echo "✅ 高速下载完成，正在秒级载入镜像..."
+    docker load -i "MiCube-${MICUBE_ARCH}.tar"
+    IMAGE_NAME="micube:${MICUBE_ARCH}"
+  else
+    echo "⚠️ 离线包下载失败，尝试常规 Docker 拉取..."
+    docker pull ghcr.io/zyeyefyass/micube:latest 2>/dev/null && IMAGE_NAME="ghcr.io/zyeyefyass/micube:latest" || IMAGE_NAME="fyasshole/micube:latest"
+  fi
 fi
 
 echo "🚀 正在启动 MiCube 高性能网关容器 (${IMAGE_NAME})..."
