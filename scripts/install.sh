@@ -24,8 +24,19 @@ if ! command -v docker >/dev/null 2>&1; then
 fi
 
 # 3. 准备宿主持久化目录与 TUN 虚拟网卡
-DATA_DIR="/opt/MiCube/data"
-ETC_DIR="/opt/MiCube/etc"
+# 智能适配飞牛 (fnOS) 存储池 (/vol1/1000/micube) 与通用 Linux (/opt/MiCube)
+if [ -d "/vol1/1000" ] || [ -d "/vol1" ]; then
+  if [ -d "/vol1/1000" ]; then
+    BASE_DIR="/vol1/1000/micube"
+  else
+    BASE_DIR="/vol1/micube"
+  fi
+  echo "🐳 检测到飞牛 fnOS 存储池，数据将持久化保存在用户空间: $BASE_DIR"
+else
+  BASE_DIR="/opt/MiCube"
+fi
+DATA_DIR="$BASE_DIR/data"
+ETC_DIR="$BASE_DIR/etc"
 mkdir -p "$DATA_DIR" "$ETC_DIR"
 
 if [ ! -c /dev/net/tun ]; then

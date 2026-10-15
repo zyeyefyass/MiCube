@@ -341,10 +341,12 @@ graph TD
 3. **⚠️ 关键设置（最核心两步，务必勾选正确）**：
    - **网络设置**：网络模式下拉选择 **`host`（主机网络模式）**。*(注意：千万不要选 bridge，否则局域网无法接入)*
    - **高级权限**：勾选 **【以高权限运行容器】（Privileged 模式）**。*(注意：必须勾选，用于系统加载 TUN 虚拟网卡)*
-4. **存储空间映射**：
-   - 点击添加文件夹映射（本地路径可自由存放在您的任意共享文件夹中，例如 `docker/micube`）：
-     - 本地路径选择：`docker/micube/data` ➔ 容器路径填写：`/opt/MiCube/data`
-     - 本地路径选择：`docker/micube/etc` ➔ 容器路径填写：`/opt/MiCube/etc`
+4. **存储空间映射 (数据持久化 · 极其重要)**：
+   - 点击添加文件夹映射（飞牛私有云的主存储池与首个用户物理根路径通常为 **`/vol1/1000/`**，存放在此处可保证哪怕系统盘重装或升级，硬盘池配置永不丢失！）：
+     - **图形化选法**：在飞牛文件管理中浏览到主存储空间（如 `vol1` 或共享目录）➔ 创建并选择 `micube/data` 与 `micube/etc`。
+     - **底层绝对路径**：
+       - 宿主机物理路径：`/vol1/1000/micube/data` ➔ 容器路径填写：`/opt/MiCube/data`
+       - 宿主机物理路径：`/vol1/1000/micube/etc` ➔ 容器路径填写：`/opt/MiCube/etc`
 5. **启动与进入控制台**：
    - 点击【完成】，容器即刻启动。
    - 打开电脑或手机浏览器，访问：**`http://你的飞牛IP:2026`**  
@@ -355,7 +357,7 @@ graph TD
 #### 方法 B：飞牛【项目 (Compose)】一键部署
 
 1. 打开飞牛【Docker】-> 点击左侧【项目】-> 点击【创建项目】；
-2. 项目名称填写 `micube`，在配置文本框中粘贴如下代码：
+2. 项目名称填写 `micube`，在配置文本框中粘贴如下代码（**支持飞牛标准物理路径或相对路径**）：
 
 ```yaml
 version: '3.8'
@@ -370,9 +372,9 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     volumes:
-      # 采用相对路径，飞牛会自动在项目所在目录创建 data 与 etc 文件夹，绝对不会路径报错！
-      - ./data:/opt/MiCube/data
-      - ./etc:/opt/MiCube/etc
+      # 飞牛标准用户存储池物理路径 (如使用图形化项目目录，也支持 ./data 与 ./etc 相对路径)
+      - /vol1/1000/micube/data:/opt/MiCube/data
+      - /vol1/1000/micube/etc:/opt/MiCube/etc
     environment:
       - TZ=Asia/Shanghai
       - PORT=2026
