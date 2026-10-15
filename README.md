@@ -8,7 +8,7 @@
   **Tailored for MikroTik RouterOS v7 · 飞牛 fnOS · PVE CT/LXC · NAS Docker**
 
   <p align="center">
-    <a href="https://github.com/zyeyefyass/MiCube/releases"><img src="https://img.shields.io/badge/Release-Test%20V0.9-00d2ff.svg?style=flat-square&logo=github" alt="Release" /></a>
+    <a href="https://github.com/zyeyefyass/MiCube/releases"><img src="https://img.shields.io/badge/Release-Test%20V0.91-00d2ff.svg?style=flat-square&logo=github" alt="Release" /></a>
     <a href="https://github.com/MetaCubeX/mihomo"><img src="https://img.shields.io/badge/Core-Mihomo%20Alpha--0e0fa70%20MipStack-5c7cfa.svg?style=flat-square&logo=cloudflare" alt="Mihomo Core" /></a>
     <a href="https://hub.docker.com/r/fyasshole/micube"><img src="https://img.shields.io/badge/DockerHub-fyasshole%2Fmicube-2496ed.svg?style=flat-square&logo=docker" alt="Docker Hub Image" /></a>
     <a href="https://github.com/zyeyefyass/MiCube/pkgs/container/micube"><img src="https://img.shields.io/badge/GHCR-zyeyefyass%2Fmicube-2088FF.svg?style=flat-square&logo=github" alt="GHCR Image" /></a>
@@ -680,6 +680,28 @@ flowchart LR
 
 ## 🔄 版本更新日志与迭代历程 (Changelog)
 
+### 🧊 Test V0.91 (2026-10-15) · 面板极致简洁重构 (11 合为 5 大中枢)、脏状态保存感知、策略组折叠减负、10s 防抖测速与一键恢复推荐规则
+- 🎛️ **面板导航极致精简与高人机效率重构 (11 项散乱 Tab ➔ 5 大生产力中枢)**：
+  - 彻底淘汰此前 11 个孤立选项卡的冗长凌乱布局，根据用户心智模型重新收敛为 5 个核心中枢：
+    1. 📊 **仪表总览 (Dashboard)**：核心健康度、分流状态、网络拓扑与快捷体检；
+    2. 🌐 **节点分流 (Proxies Hub)**：聚合【节点选择】与【订阅配置】，节点切换与机场更新无缝衔接；
+    3. 📱 **穿透协同 (WireGuard)**：手机移动端一键扫码穿透、密钥编排与握手烟花监控；
+    4. 🛡️ **规则安全 (Rules Hub)**：聚合【去广告 MRS 拦截】、【实时流向透视】与【接入设备治理】；
+    5. ⚙️ **系统运维 (System Hub)**：收纳【核心与系统升级】、【TG 机器人】、【AI 智脑诊断】与【镜像加速】。
+  - 手机移动端底栏同步进化为 5 大主控坞，单手拇指即可一键穿透任意功能模块。
+- 💾 **配置脏状态实时感知与智能防漏保存 (Dirty State Tracking)**：
+  - 配置发生修改时，保存按钮由低调暗色秒级激活为「青蓝呼吸高亮 + 粒子发光提示」，明确标示 `💾 保存并编译 (已修改)`；
+  - 若无未保存变动，按钮自动呈现暗态防误触 `✔ 配置已是最新`，杜绝用户反复纠结是否生效。
+- 📦 **策略组智能折叠降噪与极简卡片视图 (Collapsible Policy Groups)**：
+  - 针对拥有数十个机场几百上千个节点的场景，默认收拢节点列表，直接展示当前生效的选中出海节点与延迟胶囊；
+  - 支持一键展开/收起，搭配即时节点检索过滤，彻底告别满屏节点滚动难找的视觉污染。
+- ⏱️ **延迟测速 10 秒防抖重测与抗闪烁保护 (Anti-Flapping Retry)**：
+  - 单次测速偶发超时或握手丢包时，自动触发 10 秒轻量级快速重测自愈机制；
+  - 规避瞬时抖动导致的误报超时，测速结果更精准可信。
+- 🔄 **出厂推荐分流规则一键恢复 (Reset Factory Rules)**：
+  - 新增专用自愈接口 `/api/v1/config/rules/reset-defaults` 与控制台一键恢复按钮；
+  - 无论规则如何调试改动，随时一键重置为官方最佳 GEO 与去广告策略，同时绝对保留用户的机场订阅与 WireGuard 密钥安全无损。
+
 ### 🧊 Test V0.9 (2026-10-15) · WireGuard 开箱向导 30s 自愈看门狗、RouterOS 快速熔断探针与飞牛存储池深度适配
 - 🛡️ **WireGuard 开箱通关向导 30 秒超时自愈与「以后再说」快速跳过 (Skip & Resume later)**：
   - 彻底攻克初始化向导在 55%（创建/校准核心接口）处卡顿挂起的痛点；
@@ -807,6 +829,6 @@ flowchart LR
 ---
 
 <div align="center">
-  <b>MiCube · 专有高性能旁路由系统 · Test V0.9</b><br/>
+  <b>MiCube · 专有高性能旁路由系统 · Test V0.91</b><br/>
   Crafted with ❤️ by <a href="https://github.com/zyeyefyass">zyeyefyass</a>
 </div>
