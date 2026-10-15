@@ -5,6 +5,7 @@
 /Dockerfile
 /entrypoint.sh
 /.github/
+SingCube/
 
 
 # Binaries and build outputs
