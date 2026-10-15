@@ -8,7 +8,7 @@
   **Tailored for MikroTik RouterOS v7 · 飞牛 fnOS · PVE CT/LXC · NAS Docker**
 
   <p align="center">
-    <a href="https://github.com/zyeyefyass/MiCube/releases"><img src="https://img.shields.io/badge/Release-Test%20V0.7-00d2ff.svg?style=flat-square&logo=github" alt="Release" /></a>
+    <a href="https://github.com/zyeyefyass/MiCube/releases"><img src="https://img.shields.io/badge/Release-Test%20V0.8-00d2ff.svg?style=flat-square&logo=github" alt="Release" /></a>
     <a href="https://github.com/MetaCubeX/mihomo"><img src="https://img.shields.io/badge/Core-Mihomo%20Alpha--0e0fa70%20MipStack-5c7cfa.svg?style=flat-square&logo=cloudflare" alt="Mihomo Core" /></a>
     <a href="https://hub.docker.com/r/fyasshole/micube"><img src="https://img.shields.io/badge/DockerHub-fyasshole%2Fmicube-2496ed.svg?style=flat-square&logo=docker" alt="Docker Hub Image" /></a>
     <a href="https://github.com/zyeyefyass/MiCube/pkgs/container/micube"><img src="https://img.shields.io/badge/GHCR-zyeyefyass%2Fmicube-2088FF.svg?style=flat-square&logo=github" alt="GHCR Image" /></a>
@@ -38,7 +38,7 @@
 然而传统方案中，玩家们往往要在笨重臃肿的虚拟全家桶、频频死锁的防火墙脚本以及复杂的网关折返间身心俱疲。
 
 **MiCube 的诞生，正是为了打破这种桎梏：**
-- 🌾 **让普通人也能吃上饱饭**：秉持**「低配硬件高档享受」**的核心设计哲学。拒绝动辄要求 4 核 8G 的笨重运行时堆叠，采用纯自研 Go 单二进制重构，系统总内存常驻仅 **~100MB 级别**。几十块钱的二手工控机、单核 512MB 的小主机、甚至老旧家用 NAS 的边缘容器，都能轻盈驾驭，跑出满载极限性能！
+- 🌾 **让普通人也能吃上饱饭**：秉持**「低配硬件高档享受」**的核心设计哲学。拒绝动辄要求 4 核 8G 的笨重运行时堆叠，采用纯自研 Go 单二进制重构，**系统总内存常驻仅 50MB 出头**（实机实测常驻仅约 52MB！安装包单二进制仅 10MB 出头，较传统旁路由节省 80% 内存）。几十块钱的二手工控机、单核 512MB 的小主机、甚至老旧家用 NAS 的边缘容器，都能轻盈驾驭，跑出满载极限性能！
 - ⚡ **天花板遇上满血战神**：将**电信级路由天花板（RouterOS v7）** 与 **全协议硬件加速内核（Mihomo v1.19.32）** 深度糅合，打造真正意义上的**主旁一体（Master-Bypass Unified）** 透明旁路系统。
 - 🧊 **极简开箱，主旁一体**：告别繁琐的手工 iptables 与网关死锁，开箱即用，后台 Supervisor 自愈守护，主路由负责光速转发，MiCube 负责全域智能分流。
 
@@ -48,13 +48,20 @@
 
 在各类内网穿透工具层出不穷的今天，为什么 MiCube 依然坚持深度联动 **RouterOS 原生 WireGuard**？
 
-1. ⚡ **内核级极速 UDP，手机全天挂载零发热**：  
+1. 🚫 **彻底告别公网 IPv4 焦虑，告别运营商内网限制**：  
+   如今家用宽带绝大部分被困在运营商的大内网（CGNAT / NAT444）中，想要公网 IPv4 往往需要昂贵资费或专线。WireGuard 深度配合 RouterOS 原生免费的 IP Cloud DDNS 或 IPv6 端点，**无需公网 IPv4 地址即可瞬间建立点对点安全隧道**，让内网穿透不再受制于运营商！
+2. 🛡️ **彻底杜绝暴露内网 IPv6 的巨大安全风险（全屋设备绝对隐身）**：  
+   很多新手获取了公网 IPv6 后，兴奋地将家里的 NAS、PC、摄像头直接开启 IPv6 对外开放——这是极度危险的“裸奔”行为！全世界的自动化扫描器与黑客脚本每天 24 小时在全网狂扫暴露的 IPv6 设备（勒索病毒、密码爆破、Web 漏洞入侵防不胜防）。  
+   **WireGuard 是唯一的金牌安全护盾**：全屋所有的 NAS、电脑、摄像头等私有设备**无需对外暴露任何独立的 IPv6 地址或端口，在互联网上完全隐身**！全家仅有 RouterOS 上由强密码学签名保护的单个 UDP 端口作为唯一安全入口，外界没有正确密钥的探测包在底层直接被静默丢弃（Silent Drop），公网扫描如同面对一堵死黑洞，杜绝任何攻击面！
+3. 🏠 **三层全网段直通，真正穿透整个家庭局域网 (Full-Subnet)**：  
+   传统的 FRP、DDNSTO 等工具只能实现“单端口映射”（映射一个 Web 端口就要配置一次，繁琐脆弱且无法支持非 HTTP 协议）。而 WireGuard 建立的是**完整的三层网络隧道**：手机一旦连上，就像拉了一根无形的千兆光纤直接插入家里的主交换机！无需逐个端口配置，**瞬间穿透整个家庭局域网（`192.168.x.0/24`）**：NAS 文件共享（SMB / WebDAV）、远程桌面（RDP / VNC）、打印机、Home Assistant 智能家居、软路由后台随时秒级直达！
+4. 💰 **永久 100% 完全免费，绝无第三方限速与隐私窥探**：  
+   商业穿透工具（如蒲公英、花生壳、各类内网穿透 SaaS）不仅有高昂的月费门槛，而且往往限制 1~2Mbps 的蜗牛带宽、限制连接设备数量，数据还要经过第三方商业服务器中转。WireGuard + RouterOS 是 100% 纯自研与原生的底层方案，**零月租、零费用**，直接跑满您家庭宽带的物理上行带宽（千兆光纤满载跑满，外出串流 4K 原盘毫无卡顿）！
+5. ⚡ **内核级极速 UDP，手机全天挂载零发热**：  
    WireGuard 基于极为精简现代的密码学（ChaCha20-Poly1305），直接运行在 Linux / RouterOS 内核空间。相较于传统 OpenVPN / IPsec 或用户态穿透工具，其上下文切换与协议握手开销近乎为零，**手机在后台挂载一整天几乎零额外耗电、机身不发热**，彻底告别移动端的发热掉电梦魇。
-2. 🔄 **真正的端点无状态与无感热漫游 (Connection Roaming)**：  
+6. 🔄 **真正的端点无状态与无感热漫游 (Connection Roaming)**：  
    WireGuard 具有天才般的无状态连接特性。当您带着手机从家中 Wi-Fi 踏出大门、切换至户外 5G 移动网络时，即使客户端公网 IP 发生突变，**底层会话依然持续保活、连接完全不断流**，实现真正丝滑的无感漫游。
-3. 📱 **一键扫码，全家设备秒级安全回航**：  
-   MiCube 自动深度联动 RouterOS 免费的 IP Cloud DDNS 与 WireGuard 接口，在控制面板上**一键为手机、平板或笔记本生成标准客户端配置二维码**。无需昂贵的公网固定 IP，外出打开手机 WireGuard 扫码一照，瞬间安全穿透回家中局域网，无缝直达家里的 NAS 文件、个人相册与私有服务。
-4. 🌐 **外出如在家，满血继承家庭局域网去广告与智能分流**：  
+7. 🌐 **外出如在家，满血继承家庭局域网去广告与智能分流**：  
    当手机连上家里的 WireGuard 隧道后，所有 DNS 与网络流量将自动汇入 MiCube 的 SmartDNS 与 **217heidai 23 万条权威去广告引擎**。出门在外、连接公共 Wi-Fi 或蜂窝网络时，依然享受家中纯净、无污染、满载极速的加速体验！
 
 ---
@@ -75,33 +82,47 @@ MiCube 全面采用 **[MetaCubeX/mihomo](https://github.com/MetaCubeX/mihomo) �
 ## 📸 核心模块实机展示与特性详解 (Features & Showcase)
 
 ### 1. 现代化微光仪表盘 · 电信级全景实时监控
-深度统筹内核生命周期与系统性能，毫秒级响应，总内存开销仅 **~90MB** 级别。
+深度统筹内核生命周期与系统性能，毫秒级响应，总内存常驻仅 **50MB 出头**（实机实测常驻约 52.4MB）。
 
 <p align="center">
   <img src="docs/images/desktop-dashboard.png" width="100%" alt="MiCube 现代化微光仪表盘全景" />
 </p>
 
-- ⚡ **电信级宿主平台识别**：智能探查并展示 RouterOS v7.x、Linux VM 或 NAS Docker 官方纯矢量 Logo 识别徽章；
+- ⚡ **电信级宿主平台识别**：智能探查并展示 RouterOS v7.x、Linux VM 或 NAS Docker 官方纯矢量 Logo 识别徽章（如 `RouterOS v7.18.2 (stable)`）；
 - 📈 **60fps 高精度平滑网络流速波形**：实时呈现全屋设备的上行、下行瞬时流量与活跃连接链路；
 - 🛡️ **Supervisor 守护中枢**：支持一键启动、停止、热重载与守护进程崩溃自愈，开机自动托管。
 
 ---
 
-### 2. 订阅管理与出口策略组 · 智能选路与真实 IP 直出
+### 2. 节点选择与策略组管理 · 毫秒级单点并发测速与手动自由切选
+全新独立【节点选择】控制台，提供比肩顶级客户端的操控体验。
+
+<p align="center">
+  <img src="docs/images/desktop-proxies.png" width="100%" alt="MiCube 节点选择与策略组管理" />
+</p>
+
+- ⚡ **毫秒级单点与并发测速**：一键刷新整组节点延迟，三色延迟胶囊（<150ms 翠绿极速 / <300ms 暖橙良好 / 超时 绯红告警）；
+- 🎛️ **多层级策略组智能筛选**：支持「全部分组、自动选路 (url-test)、故障转移 (fallback)、直连、手动选择 (selector)」一键分类筛选；
+- 🎯 **一键无缝切换活动节点**：实时向底层 Mihomo 注入选路指令，即切即用，零网络抖动中断；
+- 🔍 **智能清洗假节点与精准计数**：彻底过滤机场公告、剩余流量等无效节点，精准识别 `1Gbps`、`10Gbps` 及海外地区节点，节点统计 100% 真实。
+
+---
+
+### 3. 订阅管理与出口策略组 · 地区故转与地区容灾分流
 分流规则彻底摆脱传统手写配置痛点，可视化轻松掌控复杂分流策略。
 
 <p align="center">
   <img src="docs/images/desktop-config.png" width="100%" alt="MiCube 订阅与分流规则配置" />
 </p>
 
-- 🎯 **各地区自动优选与容灾故转**：支持按业务目标指定出口策略组，提供 **各地区最低延迟（自动）** 与 **健康探针容灾（故转 / 故障转移）** 下拉菜单快速选择；
+- 🎯 **地区故转 vs 地区容灾**：明确划分 **🛡️ 地区故转（顺序顺延 / IP稳定，适合 ChatGPT/网银）** 与 **🌐 地区容灾（灾备备用，应急兜底）** 及 **⚡ 地区自动（最低延迟优先）**；
 - 🔄 **微动模式切换**：支持 `✎ / ▾` 微动按钮快速切换预设下拉与自定义手动输入，兼具易用性与扩展性；
 - 🌐 **国内直连显示真实 IP（黑科技）**：智能将国内大厂与局域网流量彻底绕过 Fake-IP 映射池，由国内 DNS 直接解析真实公网 IP 直连直出，**不占内核 CPU，跑满满载带宽**，BT/PT 与游戏联机零阻碍；
 - ⚡ **海外 QUIC (UDP 443) 优化**：智能阻断劣质 UDP，迫使 YouTube / Chrome 回退至 TCP TLS，享受节点 BBR 算法强力加速，彻底消除 4K 缓冲转圈与丢包。
 
 ---
 
-### 3. 217heidai 全网去广告与隐私防追踪 · 毫秒级直接丢弃
+### 4. 217heidai 全网去广告与隐私防追踪 · 毫秒级直接丢弃
 集成全网权威反追踪规则库，还家庭一个清爽无污染的网络空间。
 
 <p align="center">
@@ -114,7 +135,7 @@ MiCube 全面采用 **[MetaCubeX/mihomo](https://github.com/MetaCubeX/mihomo) �
 
 ---
 
-### 4. WireGuard 移动端内网穿透 · 外出手机一键扫码回航
+### 5. WireGuard 移动端内网穿透 · 外出手机一键扫码回航
 将 RouterOS 电信级底层能力与现代轻量级 UDP 穿透协议深度打通。
 
 <p align="center">
@@ -128,16 +149,18 @@ MiCube 全面采用 **[MetaCubeX/mihomo](https://github.com/MetaCubeX/mihomo) �
 
 ---
 
-### 5. 双模极客响应式设计 · 手机移动端极致优化
+### 6. 双模极客响应式设计 · 手机移动端极致优化
 无论在大屏电脑前还是躺在沙发握着手机，都能获得丝滑一致的掌上运维体验。
 
 <p align="center">
-  <img src="docs/images/mobile-dashboard.png" width="340" alt="MiCube 移动端自适应微光面板" />
+  <img src="docs/images/mobile-dashboard.png" width="320" alt="MiCube 移动端仪表盘" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="docs/images/mobile-proxies.png" width="320" alt="MiCube 移动端节点选择" />
 </p>
 
 - 📱 **灵动微光顶栏**：Mini 胶囊实时展现当前状态、运行时间与宿主平台徽章；
 - 🎛️ **极客悬浮毛玻璃 Dock 栏**：专为移动端单手操作优化，完美避开 iPhone 刘海屏与底栏 Home 条；
-- 💻 **全功能不阉割**：手机端直接支持切换分流模式、测速选路、查看拦截流与重启核心。
+- 💻 **全功能不阉割**：手机端直接支持节点测速切选、策略组切换、查看拦截流与重启核心。
 
 ---
 
@@ -390,6 +413,88 @@ docker run -d \
 
 ---
 
+## 🛡️ 【小白必读】WireGuard 移动端内网穿透与全天漫游四步法
+
+> [!IMPORTANT]
+> **很多新手最头疼的问题**：到底是先调防火墙？先在 ROS 里对齐？还是先在手机上扫码？为什么我扫了码手机一直在转圈握手失败？  
+> 请务必遵循 **「① 先对齐 ROS ➔ ② 先调防火墙与策略路由 ➔ ③ 后在面板扫码 ➔ ④ 断开 Wi-Fi 验证」** 的标准执行序列！顺序颠倒极易造成握手超时或断网。
+
+### 🌟 为什么 WireGuard 是秒杀一切商业穿透的终极方案？
+
+| 维度 | 传统商业穿透 (如某壳/某联/FRP公共服务) | 直接暴露 IPv6 到公网 (新手常见做法) | 🧊 MiCube + RouterOS 原生 WireGuard |
+| :--- | :--- | :--- | :--- |
+| **公网 IPv4 需求** | 不需要（依赖厂商服务器中转） | 不需要（仅限 IPv6） | **完全不需要** (配合 ROS 免费 IP Cloud DDNS 或 IPv6 隧道) |
+| **设备安全与暴露风险** | 账号或中转服务器有数据泄露风险 | 🔴 **极度危险** (所有内网 NAS/PC 端口直接暴露在公网，遭遇全天候暴力破解与勒索病毒) | 🟢 **军工级隐身** (内网设备 0 暴露，公网仅暴露 1 个 WireGuard 端口，无签名探测直接静默丢弃，公网扫描呈黑洞状态) |
+| **穿透范围** | 仅单端口 / 单应用 (映射一个配一个) | 仅有 IPv6 地址的单台设备 | 🟢 **穿透整个局域网 (L3 全网段)** (连上即如插千兆网线，直达局域网所有 NAS/PC/打印机/摄像头) |
+| **带宽与费用** | 🔴 收费昂贵，免费版限速 1~2Mbps 龟速 | 取决于宽带，但受限于跨网 IPv6 互通 | 🟢 **永久 100% 免费** (无任何商业收费，满载跑满家庭千兆宽带物理上行极限) |
+| **手机耗电与发热** | 用户态协议，后台耗电高、机身发热 | 直连，但应用无统一加密通道 | 🟢 **内核态极速运行，全天挂载零发热、零掉电** |
+| **网络漫游体验** | 切换网络经常掉线重连 | IP 变化即中断 | 🟢 **端点无状态，Wi-Fi 切 5G 移动网络无感秒级热漫游** |
+
+---
+
+### 🌐 一张图看懂数据流转原理 (Data Flow Architecture)
+
+```mermaid
+flowchart LR
+    Phone["📱 外出手机 (5G / 移动网络)"]
+    ROS["⚡ 主路由 RouterOS (UDP: 51820)"]
+    Firewall["🛡️ 防火墙 input 链 (放行 51820)"]
+    WGModule["🔐 ROS WireGuard 内核模块 (解密为 10.88.0.2)"]
+    PolicyRoute["🧭 策略路由 (table 8228 / micube)"]
+    MiCube["🧊 MiCube 容器网关 (192.168.88.2)"]
+    HomeNAS["💾 家庭局域网私有 NAS / 服务"]
+    SmartDNS["🧠 SmartDNS + 217heidai 去广告"]
+    GlobalProxy["🚀 落地节点 / 海外网络"]
+    ChinaNet["🇨🇳 国内大厂真实 IP 直连"]
+
+    Phone -->|"加密 UDP:51820 (打向 DDNS 域名)"| ROS
+    ROS --> Firewall
+    Firewall --> WGModule
+    WGModule --> PolicyRoute
+    PolicyRoute -->|"访问内网 192.168.88.0/24"| HomeNAS
+    PolicyRoute -->|"科学与互联网流量"| MiCube
+    MiCube --> SmartDNS
+    SmartDNS -->|"国内流量直出"| ChinaNet
+    SmartDNS -->|"海外流量出海"| GlobalProxy
+```
+
+---
+
+### 📋 严格执行四步法（为什么这个顺序绝不能颠倒？）
+
+#### 🥇 第一步：先一键对齐 ROS (服务端端点、密钥与 DDNS 准备)
+- **底层原理**：手机 WireGuard 客户端就像一把钥匙，ROS 上的 `wireguard1` 接口就像一把锁。在给手机配钥匙之前，必须先在锁里把**门牌号（公网 IP 或 Cloud DDNS 域名）**、**门铃端口（UDP 51820）**、**服务端公钥**与**隧道内网网段（如 10.88.0.1/24）**固定下来。如果这一步不对齐，后面生成的二维码配置就是“空号”或“错号”，手机扫了也是徒劳。
+- **操作方式**：
+  1. 在 MiCube 面板点击左侧【WireGuard】；
+  2. 检查顶部的对齐状态矩阵，若显示未对齐，直接点击**「⚡ 一键对齐 RouterOS」**；
+  3. MiCube 将通过 REST API 自动在 ROS 创建并校准 `wireguard1` 接口、生成私钥公钥、设置端口为 `51820`、绑定 `10.88.0.1/24` 并探查 ROS IP Cloud 动态域名。
+
+#### 🥈 第二步：先调防火墙与策略路由规则 (大门放行与通道引流)
+- **底层原理（新手最常踩的大坑！）**：
+  - **防火墙必须先放行**：RouterOS 默认的防火墙安全机制极为严格，Filter Rules 的 `input` 链默认**直接丢弃 (DROP) 所有来自外网 WAN 口的未知连接**！即使第一步建好了 WireGuard 接口，如果不提前在防火墙放行 UDP 51820 端口，运营商进来的握手包会在第一道关卡被直接丢进垃圾桶。**如果先扫码连手机，手机发出的握手信号根本进不来，客户端会一直显示 `Handshake did not complete after 5 seconds`**！
+  - **策略路由必须提前引流**：手机连入后分配的是 `10.88.0.x` 内网 IP。如果策略路由没有将 `10.88.0.0/24` 纳入分流标记，手机就算连回家也只能访问局域网 NAS，无法通过 MiCube 翻墙出海。
+- **操作方式**：
+  1. 在 MiCube 面板【系统状态】或 WireGuard 诊断卡片中，点击**「⚡ 一键配置防火墙与策略路由」**；
+  2. 后台全自动在 ROS `ip firewall filter` 的 input 链顶部插入 `accept protocol=udp dst-port=51820` 放行规则，并自动下发 `table 8228` 策略路由引流规则。
+
+#### 🥉 第三步：后在 Web 界面扫码导入手机 WireGuard
+- **底层原理**：此时大门（防火墙端口）已敞开、路标（策略路由）已立好、端点（DDNS 与接口密钥）已对齐。此时在 MiCube 面板为手机创建 Peer，手机扫码即可直接握手成功。
+- **操作方式**：
+  1. 在手机应用商店（App Store / Google Play / 官方 APK）下载安装 **WireGuard** 官方客户端；
+  2. 在 MiCube 面板【WireGuard】设备列表中，找到您的手机（或点击右上角「+ 添加设备」如 `iPhone 16 Pro`），点击右侧的**「📱 扫码配置」**；
+  3. 手机打开 WireGuard App，点击右上角 `+` -> 选择 **「扫描二维码」**，扫描电脑屏幕上的二维码，命名保存并开启连接开关；
+  4. 此时手机发出第 1 个 UDP 握手包，ROS 秒级响应，手机 WireGuard 界面内的「最新握手 (Latest Handshake)」在 1 秒内变为绿色（例如 `5 秒前`），同时产生双向传输数据流量！
+
+#### 🏅 第四步：手机断开 Wi-Fi，切蜂窝移动网络验证
+- **底层原理**：在手机连接家中 Wi-Fi 时测试穿透，可能会因路由器 NAT 回流（Hairpin NAT）未配置而连不上或产生假象。真正的内网穿透是在外面出差、旅游、喝咖啡时的漫游场景。
+- **操作方式**：
+  1. **关闭手机 Wi-Fi 开关**，切至运营商 5G / 4G 移动网络；
+  2. 保持手机 WireGuard 处于已连接状态；
+  3. **内网直通验证**：在手机 Safari / 浏览器中直接输入家庭内网 NAS 或路由器地址（如 `http://192.168.88.1` 或 `http://192.168.88.5:5000`），秒级打开即代表内网穿透成功！
+  4. **全天漫游分流验证**：打开 YouTube 或 Google，秒开 4K 视频且无任何广告，证明手机已成功继承家中 MiCube 的全套 217heidai 去广告与 SmartDNS 加速能力！
+
+---
+
 ## ❓ 常见新手排障问答 (Troubleshooting FAQ)
 
 <details>
@@ -416,9 +521,22 @@ docker run -d \
 
 ---
 
----
-
 ## 🔄 版本更新日志与迭代历程 (Changelog)
+
+### 🧊 Test V0.8 (2026-10-15) · 系统内存降至 50MB 出头、单二进制 10MB 出头、全新独立节点选择控制台与 WireGuard 权威指南
+- 🚀 **系统常驻内存压榨至 50MB 出头 (实机 52.4MB) 与 10MB 安装包**：
+  - 核心 TUN 协议栈深度对齐 Mihomo 最新 MipStack (`mips`)，纯 Go 零 CGO 零拷贝，结合 `GOMEMLIMIT=40MiB` 与 `GOGC=30`，常驻内存由 ~90MB 剧烈收缩至 **52.4MB**，相较传统方案省 80% 内存；
+  - 后端单二进制经过符号剥离与编译优化，全平台尺寸控制在 10MB 出头（amd64 仅 12.6MB，arm64 仅 11.8MB）。
+- 🎛️ **全新独立【节点选择】控制台与实时交互**：
+  - 新增全功能【节点选择】交互视窗，支持单节点及策略组毫秒级并发延迟测速；
+  - 呈现直观三色延迟胶囊（<150ms 翠绿 / <300ms 暖橙 / 超时 绯红），支持按「全部分组、自动选路、故障转移、直连、手工选择」一键分类筛选；
+  - 修复机场无效节点过滤算法，彻底解决将包含带宽标识（如 `1Gbps`、`10Gbps`）或英国 `GB` 国家标签误杀的缺陷，订阅节点计数 100% 真实。
+- 🛡️ **出口策略组细化重构：地区故转 vs 地区容灾**：
+  - 消除原“故转”与“故障转移”重复简称歧义，规范划分为「🛡️ 地区故转 (顺序顺延 / IP稳定，适合 ChatGPT 与网银)」与「🌐 地区容灾 (应急备选灾备)」及「⚡ 地区自动 (最低延迟优先)」；
+  - 编译器与前端控制面板无缝联动对齐。
+- 📱 **WireGuard 权威使用指南与四大优势规范**：
+  - 详尽剖析 WireGuard **无需公网 IPv4、彻底规避暴露内网 IPv6 高危风险、三层穿透整个局域网、100% 永久免费与军工级静默安全** 五大核心优势；
+  - 确立「① 先对齐 ROS ➔ ② 先调防火墙与策略路由 ➔ ③ 后在面板扫码 ➔ ④ 断开 Wi-Fi 验证」标准执行四步法与原理流程图。
 
 ### 🧊 Test V0.7 (2026-10-15) · 飞牛 (fnOS) / Linux 宿主机深度协同、同网段多网关自愈分流与 RouterOS 完整版本真机呈现
 - 🖥️ **飞牛 (fnOS) / Linux 宿主机深度协同与 Docker 穿透优化**：
@@ -501,6 +619,6 @@ docker run -d \
 ---
 
 <div align="center">
-  <b>MiCube · 专有高性能旁路由系统 · Test V0.7</b><br/>
+  <b>MiCube · 专有高性能旁路由系统 · Test V0.8</b><br/>
   Crafted with ❤️ by <a href="https://github.com/zyeyefyass">zyeyefyass</a>
 </div>
