@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/zyeyefyass/SingCube/releases"><img src="https://img.shields.io/badge/Release-Test%20V0.91-8b5cf6?style=flat-square&logo=github" alt="Release" /></a>
-  <a href="#"><img src="https://img.shields.io/badge/Core-sing--box%20v1.11-10b981?style=flat-square&logo=cube" alt="sing-box Core" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Core-sing--box%20v1.14.3-10b981?style=flat-square&logo=cube" alt="sing-box Core" /></a>
   <a href="#"><img src="https://img.shields.io/badge/Arch-AMD64%20%7C%20ARM64-38bdf8?style=flat-square&logo=linux" alt="Arch" /></a>
   <a href="#"><img src="https://img.shields.io/badge/RAM%20Resident-%3C40MB-a855f7?style=flat-square" alt="Memory" /></a>
   <a href="#"><img src="https://img.shields.io/badge/DNS%20Leak-Strict%20Zero-emerald?style=flat-square" alt="Anti-Leak" /></a>

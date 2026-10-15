@@ -3,7 +3,7 @@
   "codename": "QuantumCube",
   "subtitle": "SING-BOX HIGH-PERFORMANCE PROPRIETARY GATEWAY",
   "version": "Test V0.91",
-  "core": "sing-box v1.11.0-alpha.12 (MipStack & BBR)",
+  "core": "sing-box v1.14.3 (SystemStack & BBR)",
   "architectures": [
     "amd64",
     "arm64"

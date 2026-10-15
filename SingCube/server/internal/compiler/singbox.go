@@ -802,13 +802,10 @@ func (e *Engine) CompileAll() error {
 	// 3. Assemble Policy Groups (outbounds)
 	var outbounds []map[string]any
 
-	// 3.1 Base Outbounds
+	// 3.1 Base Outbounds (sing-box 1.14.3: legacy block/dns special outbounds removed, replaced by rule actions)
 	outbounds = append(outbounds,
 		map[string]any{"type": "direct", "tag": "direct"},
 		map[string]any{"type": "direct", "tag": "直连"},
-		map[string]any{"type": "block", "tag": "block"},
-		map[string]any{"type": "block", "tag": "拦截"},
-		map[string]any{"type": "dns", "tag": "dns-out"},
 	)
 
 	// Fallback pool when a country group is empty
@@ -876,7 +873,7 @@ func (e *Engine) CompileAll() error {
 	outbounds = append(outbounds, map[string]any{
 		"type":      "selector",
 		"tag":       "🛡️ 广告拦截",
-		"outbounds": []string{"block", "direct"},
+		"outbounds": []string{"direct"},
 	})
 
 	// 3.4 Business Selector Groups
@@ -908,10 +905,10 @@ func (e *Engine) CompileAll() error {
 	// 4. Construct Routes
 	var routeRules []map[string]any
 
-	// 4.1 Hijack DNS traffic
+	// 4.1 Hijack DNS traffic (sing-box 1.14.3 action: hijack-dns)
 	routeRules = append(routeRules,
-		map[string]any{"protocol": "dns", "outbound": "dns-out"},
-		map[string]any{"port": 53, "outbound": "dns-out"},
+		map[string]any{"protocol": "dns", "action": "hijack-dns"},
+		map[string]any{"port": 53, "action": "hijack-dns"},
 	)
 
 	// 4.2 LAN & Private bypass
@@ -929,7 +926,7 @@ func (e *Engine) CompileAll() error {
 	if len(e.State.CustomBlockList) > 0 {
 		routeRules = append(routeRules, map[string]any{
 			"domain_suffix": e.State.CustomBlockList,
-			"outbound":      "block",
+			"action":        "reject",
 		})
 	}
 
@@ -937,7 +934,7 @@ func (e *Engine) CompileAll() error {
 	if e.State.AdBlockEnabled {
 		routeRules = append(routeRules, map[string]any{
 			"rule_set": "geosite-category-ads-all",
-			"outbound": "block",
+			"action": "reject",
 		})
 	}
 
@@ -947,7 +944,7 @@ func (e *Engine) CompileAll() error {
 			"port":     443,
 			"network":  "udp",
 			"rule_set": "geosite-geolocation-!cn",
-			"outbound": "block",
+			"action": "reject",
 		})
 	}
 
@@ -970,16 +967,30 @@ func (e *Engine) CompileAll() error {
 		}
 
 		mrsLower := strings.ToLower(rt.MrsName)
-		if mrsLower == "cn" {
-			routeRules = append(routeRules,
-				map[string]any{"rule_set": "geosite-cn", "outbound": targetOutbound},
-				map[string]any{"rule_set": "geoip-cn", "outbound": targetOutbound},
-			)
-		} else if rt.MrsName != "" {
-			routeRules = append(routeRules, map[string]any{
-				"rule_set": "geosite-" + rt.MrsName,
-				"outbound": targetOutbound,
-			})
+		if targetOutbound == "block" {
+			if mrsLower == "cn" {
+				routeRules = append(routeRules,
+					map[string]any{"rule_set": "geosite-cn", "action": "reject"},
+					map[string]any{"rule_set": "geoip-cn", "action": "reject"},
+				)
+			} else if rt.MrsName != "" {
+				routeRules = append(routeRules, map[string]any{
+					"rule_set": "geosite-" + rt.MrsName,
+					"action":   "reject",
+				})
+			}
+		} else {
+			if mrsLower == "cn" {
+				routeRules = append(routeRules,
+					map[string]any{"rule_set": "geosite-cn", "outbound": targetOutbound},
+					map[string]any{"rule_set": "geoip-cn", "outbound": targetOutbound},
+				)
+			} else if rt.MrsName != "" {
+				routeRules = append(routeRules, map[string]any{
+					"rule_set": "geosite-" + rt.MrsName,
+					"outbound": targetOutbound,
+				})
+			}
 		}
 	}
 
@@ -989,24 +1000,22 @@ func (e *Engine) CompileAll() error {
 		map[string]any{"rule_set": "geoip-cn", "outbound": "direct"},
 	)
 
-	// 5. Construct DNS configuration
+	// 5. Construct DNS configuration (sing-box 1.14.3 standard: typed servers, optimistic cache, domain_resolver)
 	dnsConfig := map[string]any{
 		"servers": []map[string]any{
 			{
-				"tag":     "dns_direct",
-				"address": "223.5.5.5",
-				"detour":  "direct",
+				"tag":    "dns_direct",
+				"type":   "udp",
+				"server": "223.5.5.5",
+				"detour": "direct",
 			},
 			{
-				"tag":              "dns_proxy",
-				"address":          "https://1.1.1.1/dns-query",
-				"address_resolver": "dns_direct",
-				"strategy":         "prefer_ipv4",
-				"detour":           "🚀 国外流量",
-			},
-			{
-				"tag":     "dns_block",
-				"address": "rcode://success",
+				"tag":             "dns_proxy",
+				"type":            "https",
+				"server":          "1.1.1.1",
+				"path":            "/dns-query",
+				"domain_resolver": "dns_direct",
+				"detour":          "🚀 国外流量",
 			},
 		},
 		"rules": []map[string]any{
@@ -1016,31 +1025,33 @@ func (e *Engine) CompileAll() error {
 			},
 			{
 				"rule_set": "geosite-category-ads-all",
-				"server":   "dns_block",
+				"action":   "reject",
 			},
 			{
 				"rule_set": "geosite-cn",
 				"server":   "dns_direct",
 			},
 		},
-		"final":             "dns_proxy",
-		"strategy":          "prefer_ipv4",
-		"independent_cache": true,
+		"final":      "dns_proxy",
+		"strategy":   "prefer_ipv4",
+		"optimistic": true,
 	}
 
-	// 6. Inbounds
+	// 6. Inbounds (sing-box 1.14.3 standard: unified address array & system stack)
 	inbounds := []map[string]any{
 		{
 			"type":           "tun",
 			"tag":            "tun-in",
 			"interface_name": "singcube-tun",
-			"inet4_address":  "172.19.0.1/30",
-			"inet6_address":  "fdfe:dcba:9876::1/126",
-			"mtu":            9000,
-			"auto_route":     true,
-			"strict_route":   false,
-			"stack":          "system",
-			"sniff":          true,
+			"address": []string{
+				"172.19.0.1/30",
+				"fdfe:dcba:9876::1/126",
+			},
+			"mtu":          9000,
+			"auto_route":   true,
+			"strict_route": false,
+			"stack":        "system",
+			"sniff":        true,
 		},
 		{
 			"type":        "mixed",
@@ -1097,7 +1108,16 @@ func (e *Engine) CompileAll() error {
 			"rules":                  routeRules,
 			"rule_set":               ruleSets,
 			"final":                  "🐟 漏网之鱼",
-			"auto_detect_interface": true,
+			"auto_detect_interface":  true,
+			"default_http_client":    "rule-client",
+		},
+		"http_clients": []map[string]any{
+			{
+				"tag": "rule-client",
+				"dial": map[string]any{
+					"detour": "🚀 国外流量",
+				},
+			},
 		},
 		"experimental": map[string]any{
 			"clash_api": map[string]any{
@@ -1107,8 +1127,9 @@ func (e *Engine) CompileAll() error {
 				"default_mode":        "rule",
 			},
 			"cache_file": map[string]any{
-				"enabled": true,
-				"path":    "cache.db",
+				"enabled":   true,
+				"path":      "cache.db",
+				"store_dns": true,
 			},
 		},
 	}
