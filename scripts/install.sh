@@ -48,8 +48,27 @@ fi
 # 4. 开启 IPv4 数据包转发
 sysctl -w net.ipv4.ip_forward=1 >/dev/null 2>&1 || true
 
-# 5. 拉取并启动 MiCube 容器
-echo "🚀 正在启动 MiCube 高性能网关容器..."
+# 5. 准备并启动 MiCube 容器
+echo "🚀 正在准备 MiCube 高性能网关镜像..."
+IMAGE_NAME="micube:latest"
+
+if [ -f "MiCube-${MICUBE_ARCH}.tar" ]; then
+  echo "📦 检测到本地离线镜像包 MiCube-${MICUBE_ARCH}.tar，正在秒级导入..."
+  docker load -i "MiCube-${MICUBE_ARCH}.tar"
+  IMAGE_NAME="micube:${MICUBE_ARCH}"
+elif [ -f "micube-${MICUBE_ARCH}.tar" ]; then
+  echo "📦 检测到本地离线镜像包 micube-${MICUBE_ARCH}.tar，正在秒级导入..."
+  docker load -i "micube-${MICUBE_ARCH}.tar"
+  IMAGE_NAME="micube:${MICUBE_ARCH}"
+elif [ -f "micube.tar" ]; then
+  echo "📦 检测到本地离线镜像包 micube.tar，正在秒级导入..."
+  docker load -i "micube.tar"
+else
+  echo "🌐 正在拉取 MiCube 官方容器镜像..."
+  docker pull ghcr.io/zyeyefyass/micube:latest 2>/dev/null && IMAGE_NAME="ghcr.io/zyeyefyass/micube:latest" || IMAGE_NAME="fyasshole/micube:latest"
+fi
+
+echo "🚀 正在启动 MiCube 高性能网关容器 (${IMAGE_NAME})..."
 docker rm -f micube 2>/dev/null || true
 
 docker run -d \
@@ -62,7 +81,7 @@ docker run -d \
   -v "$ETC_DIR":/opt/MiCube/etc \
   -e TZ=Asia/Shanghai \
   -e PORT=2026 \
-  fyasshole/micube:latest
+  "$IMAGE_NAME"
 
 # 6. 获取当前主机 IP 并打印欢迎信息
 HOST_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "你的设备IP")
