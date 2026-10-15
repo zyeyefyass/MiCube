@@ -8,8 +8,8 @@
   **Tailored for MikroTik RouterOS v7 · 飞牛 fnOS · PVE CT/LXC · NAS Docker**
 
   <p align="center">
-    <a href="https://github.com/zyeyefyass/MiCube/releases"><img src="https://img.shields.io/badge/Release-Test%20V0.6-00d2ff.svg?style=flat-square&logo=github" alt="Release" /></a>
-    <a href="https://github.com/MetaCubeX/mihomo"><img src="https://img.shields.io/badge/Core-Mihomo%20Alpha--94b13ae%20MipStack-5c7cfa.svg?style=flat-square&logo=cloudflare" alt="Mihomo Core" /></a>
+    <a href="https://github.com/zyeyefyass/MiCube/releases"><img src="https://img.shields.io/badge/Release-Test%20V0.7-00d2ff.svg?style=flat-square&logo=github" alt="Release" /></a>
+    <a href="https://github.com/MetaCubeX/mihomo"><img src="https://img.shields.io/badge/Core-Mihomo%20Alpha--0e0fa70%20MipStack-5c7cfa.svg?style=flat-square&logo=cloudflare" alt="Mihomo Core" /></a>
     <a href="https://hub.docker.com/r/fyasshole/micube"><img src="https://img.shields.io/badge/DockerHub-fyasshole%2Fmicube-2496ed.svg?style=flat-square&logo=docker" alt="Docker Hub Image" /></a>
     <a href="https://github.com/zyeyefyass/MiCube/pkgs/container/micube"><img src="https://img.shields.io/badge/GHCR-zyeyefyass%2Fmicube-2088FF.svg?style=flat-square&logo=github" alt="GHCR Image" /></a>
     <a href="https://golang.org"><img src="https://img.shields.io/badge/Backend-Go%201.23%20Single%20Binary-00add8.svg?style=flat-square&logo=go" alt="Go" /></a>
@@ -420,6 +420,24 @@ docker run -d \
 
 ## 🔄 版本更新日志与迭代历程 (Changelog)
 
+### 🧊 Test V0.7 (2026-10-15) · 飞牛 (fnOS) / Linux 宿主机深度协同、同网段多网关自愈分流与 RouterOS 完整版本真机呈现
+- 🖥️ **飞牛 (fnOS) / Linux 宿主机深度协同与 Docker 穿透优化**：
+  - 为 Docker 部署模式量身打造宿主机 SSH 协同引擎（支持飞牛 fnOS、PVE、群晖 DSM、Debian/Ubuntu 等 Linux 宿主）；
+  - 支持一键部署宿主机 WireGuard 服务（`wg0.conf`、开机自启、开启内核 IPv4 转发与 UDP 13231 防火墙放行），绕过 Docker 网桥实现千兆内网线速直通；
+  - Web 界面增删/重命名 WireGuard 客户端时，后台全自动静默向宿主机执行 `wg set wg0 peer ...` 动态热对齐；
+  - 提供宿主机免密 1 键 Shell 脚本（`curl | sudo bash`），无须在面板保存 SSH 凭证即可 2 秒完成配置；
+  - 支持宿主机系统升级在线检测与一键升级（`apt update && apt upgrade -y` / fnOS 更新），面板内置实时终端日志视窗。
+- 🛡️ **同号段多网关 / 传统纯旁路由模式避坑与 1 键净化**：
+  - 深度治理同局域网存在多个网关或 DHCP 下发自定义 DNS 时的冲突痛点：优化 RouterOS DNS 重定向规则，限制仅对发往主路由的直连请求生效，杜绝向其他同号段网关/DNS 发包时的递归死锁；
+  - 新增「🌾 一键停用 Mangle/DNS 劫持 (经典纯旁路由模式)」，支持一键移除 RouterOS 强控标记，局域网终端只需将网关/DNS 手动指向 MiCube 即可享受全功能科学分流，与局域网其他网关互不干扰。
+- 🏷️ **RouterOS 完整版本号全真呈现 (Zero Truncation)**：
+  - 彻底重构平台探查与格式化逻辑，移除历史版本硬编码截断，优先读取真机固件版本与硬件架构（如 `RouterOS v7.18.2 (stable)`、`RouterOS v7.18.2 · CHR`）；
+  - 面板顶栏、左侧栏 Hero 徽章、移动端抽屉与仪表盘平台卡片全方位拓宽视宽并附带完整悬浮浮窗提示。
+- ⚡ **对齐 Mihomo 最新 Alpha 内核协议规范**：
+  - 启用新一代 `endpoint-independent-nat: true`（全锥型 NAT 优化）；
+  - TUN 栈原生支持 `mips` 轻量高效栈；
+  - 注入高频国内直连 UDP 首包并发竞速（阿里 `223.5.5.5` + 腾讯 `119.29.29.29`）。
+
 ### 🧊 Test V0.6 (2026-10-15) · RouterOS 原生联动对齐、全自动策略路由下发与灾备系统
 - 🛡️ **RouterOS 防火墙与策略路由全自动体检与一键配置**：
   - 新增专用策略路由诊断矩阵，自动体检 `/routing/table`（`micube` 表）、默认网关路由（`0.0.0.0/0 via MiCube`）、Mangle prerouting/redirect 标记（`mark: 0x2026`）、防死锁回环白名单（`MICUBE_BYPASS`）以及严格防 DNS 泄露规则（53 端口重定向与 SERVFAIL 阻断）。
@@ -483,6 +501,6 @@ docker run -d \
 ---
 
 <div align="center">
-  <b>MiCube · 专有高性能旁路由系统 · Test V0.6</b><br/>
+  <b>MiCube · 专有高性能旁路由系统 · Test V0.7</b><br/>
   Crafted with ❤️ by <a href="https://github.com/zyeyefyass">zyeyefyass</a>
 </div>
