@@ -2,7 +2,7 @@
   "name": "MiCube",
   "codename": "CrystalCube",
   "subtitle": "ROUTEROS & NAS MULTI-ARCH GATEWAY",
-  "version": "Test V0.8",
+  "version": "Test V0.9",
   "core": "mihomo alpha-0e0fa70 (Prerelease)",
   "architectures": [
     "amd64",

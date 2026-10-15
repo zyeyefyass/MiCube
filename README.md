@@ -8,7 +8,7 @@
   **Tailored for MikroTik RouterOS v7 · 飞牛 fnOS · PVE CT/LXC · NAS Docker**
 
   <p align="center">
-    <a href="https://github.com/zyeyefyass/MiCube/releases"><img src="https://img.shields.io/badge/Release-Test%20V0.8-00d2ff.svg?style=flat-square&logo=github" alt="Release" /></a>
+    <a href="https://github.com/zyeyefyass/MiCube/releases"><img src="https://img.shields.io/badge/Release-Test%20V0.9-00d2ff.svg?style=flat-square&logo=github" alt="Release" /></a>
     <a href="https://github.com/MetaCubeX/mihomo"><img src="https://img.shields.io/badge/Core-Mihomo%20Alpha--0e0fa70%20MipStack-5c7cfa.svg?style=flat-square&logo=cloudflare" alt="Mihomo Core" /></a>
     <a href="https://hub.docker.com/r/fyasshole/micube"><img src="https://img.shields.io/badge/DockerHub-fyasshole%2Fmicube-2496ed.svg?style=flat-square&logo=docker" alt="Docker Hub Image" /></a>
     <a href="https://github.com/zyeyefyass/MiCube/pkgs/container/micube"><img src="https://img.shields.io/badge/GHCR-zyeyefyass%2Fmicube-2088FF.svg?style=flat-square&logo=github" alt="GHCR Image" /></a>
@@ -680,6 +680,23 @@ flowchart LR
 
 ## 🔄 版本更新日志与迭代历程 (Changelog)
 
+### 🧊 Test V0.9 (2026-10-15) · WireGuard 开箱向导 30s 自愈看门狗、RouterOS 快速熔断探针与飞牛存储池深度适配
+- 🛡️ **WireGuard 开箱通关向导 30 秒超时自愈与「以后再说」快速跳过 (Skip & Resume later)**：
+  - 彻底攻克初始化向导在 55%（创建/校准核心接口）处卡顿挂起的痛点；
+  - 引入前端动态倒计时看门狗（Watchdog），支持在等待过程中随时点击【不想等待？点击【以后再说】】直达主控台；
+  - 超时 30 秒后自动唤醒超时处理面板，提供【⏩ 以后再说（跳过并直接进入系统）】和【↻ 重新尝试】，绝不阻塞用户正常使用。
+- 🔒 **RouterOS REST API 快速熔断探针与 Mutex 死锁根治**：
+  - 重构 `AlignWireGuardToROS` 消除内部非可重入锁竞争，彻底杜绝请求死锁卡死；
+  - 将 RouterOS HTTP 探针超时从 10 秒收紧至 3 秒轻量熔断保护，局域网异常或 ROS 服务未就绪时瞬间失败降级，不再长久悬挂。
+- 🌐 **前端全局网络请求超时防挂死保护 (AbortController 熔断机制)**：
+  - `apiFetch` 统一注入 AbortController 超时控制器，常规 API 15 秒超时、订阅拉取 60 秒超时、GeoData 规则包 120 秒超时，彻底杜绝前端无休止转圈与冻结。
+- 🐳 **飞牛私有云 (fnOS) 专属存储路径深度适配与离线镜像秒级加载**：
+  - 针对飞牛 NAS，自动将持久化目录对齐到用户主存储池 `/vol1/1000/micube`，数据安全沉淀在阵列池，系统重装或升级配置永不丢失；
+  - 安装脚本新增对当前目录下的离线镜像包（`MiCube-${ARCH}.tar` / `micube.tar`）的自动探查与 `docker load -i` 秒级导入支持。
+- 🧊 **离线规则种子包出厂内置与一键更新**：
+  - 容器镜像出厂自带 `geoip.metadb` + `geosite.dat` + 核心 MRS 规则集，冷启动完全零外网依赖，国内网络秒级冷启；
+  - 控制台新增一键更新卡片，随时同步最新 IP 分类与 217heidai 高速去广告规则。
+
 ### 🧊 Test V0.8 (2026-10-15) · 系统内存降至 50MB 出头、单二进制 10MB 出头、宿主网络底座第 0 步打通、WireGuard 1键向导烟花庆祝与权威指南
 - 🚀 **系统常驻内存压榨至 50MB 出头 (实机 52.4MB) 与 10MB 安装包**：
   - 核心 TUN 协议栈深度对齐 Mihomo 最新 MipStack (`mips`)，纯 Go 零 CGO 零拷贝，结合 `GOMEMLIMIT=40MiB` 与 `GOGC=30`，常驻内存由 ~90MB 剧烈收缩至 **52.4MB**，相较传统方案省 80% 内存；
@@ -790,6 +807,6 @@ flowchart LR
 ---
 
 <div align="center">
-  <b>MiCube · 专有高性能旁路由系统 · Test V0.8</b><br/>
+  <b>MiCube · 专有高性能旁路由系统 · Test V0.9</b><br/>
   Crafted with ❤️ by <a href="https://github.com/zyeyefyass">zyeyefyass</a>
 </div>
