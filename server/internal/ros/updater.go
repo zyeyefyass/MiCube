@@ -512,13 +512,14 @@ func (m *Manager) downloadAndDecompress(rawURL, destPath string) error {
 	}
 
 	candidates := []string{
-		"https://ghproxy.net/" + cleanGitHubURL,
 		"https://ghfast.top/" + cleanGitHubURL,
 		"https://mirror.ghproxy.com/" + cleanGitHubURL,
+		"https://gh-proxy.com/" + cleanGitHubURL,
+		"https://ghproxy.net/" + cleanGitHubURL,
 		cleanGitHubURL,
 	}
 
-	client := &http.Client{Timeout: 180 * time.Second}
+	client := &http.Client{Timeout: 35 * time.Second}
 	var lastErr error
 
 	for _, targetURL := range candidates {
