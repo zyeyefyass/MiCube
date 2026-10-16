@@ -2,10 +2,13 @@ package host
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -36,8 +39,12 @@ type HostInfo struct {
 	WireGuardReady bool   `json:"wireguard_ready"`
 	WireGuardActive bool  `json:"wireguard_active"`
 	FirewallConfigured bool `json:"firewall_configured"`
-	DockerRunning  bool   `json:"docker_running"`
-	RawError       string `json:"raw_error,omitempty"`
+	DockerRunning      bool   `json:"docker_running"`
+	RawError           string `json:"raw_error,omitempty"`
+	CPUCores           int    `json:"cpu_cores"`
+	CPULoad            string `json:"cpu_load"`
+	MemoryUsed         string `json:"memory_used"`
+	MemoryTotal        string `json:"memory_total"`
 }
 
 // FirewallResult represents the status of firewall rule deployment on the host.
@@ -150,10 +157,182 @@ func (m *Manager) getSSHClient(cfg HostConfig) (*ssh.Client, error) {
 	return ssh.Dial("tcp", addr, clientConfig)
 }
 
+func parseROSResourcePrint(outStr string) (ver, arch string, cores int, load, memUsed, memTotal string) {
+	ver = "7.x"
+	arch = "x86_64"
+	cores = 1
+	var totalMemNum, freeMemNum float64
+
+	for _, line := range strings.Split(outStr, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "version:") {
+			ver = strings.TrimSpace(strings.TrimPrefix(line, "version:"))
+		}
+		if strings.HasPrefix(line, "architecture-name:") {
+			arch = strings.TrimSpace(strings.TrimPrefix(line, "architecture-name:"))
+		}
+		if strings.HasPrefix(line, "cpu-count:") {
+			cStr := strings.TrimSpace(strings.TrimPrefix(line, "cpu-count:"))
+			if c, err := strconv.Atoi(cStr); err == nil && c > 0 {
+				cores = c
+			}
+		}
+		if strings.HasPrefix(line, "cpu-load:") {
+			load = strings.TrimSpace(strings.TrimPrefix(line, "cpu-load:"))
+		}
+		if strings.HasPrefix(line, "total-memory:") {
+			memTotal = strings.TrimSpace(strings.TrimPrefix(line, "total-memory:"))
+			cleaned := strings.TrimSuffix(memTotal, "MiB")
+			if t, err := strconv.ParseFloat(cleaned, 64); err == nil {
+				totalMemNum = t
+			}
+		}
+		if strings.HasPrefix(line, "free-memory:") {
+			freeStr := strings.TrimSpace(strings.TrimPrefix(line, "free-memory:"))
+			cleaned := strings.TrimSuffix(freeStr, "MiB")
+			if f, err := strconv.ParseFloat(cleaned, 64); err == nil {
+				freeMemNum = f
+			}
+		}
+	}
+	if totalMemNum > 0 && freeMemNum > 0 {
+		used := totalMemNum - freeMemNum
+		if used < 0 {
+			used = 0
+		}
+		memUsed = fmt.Sprintf("%.0fMiB", used)
+	}
+	return
+}
+
+func (m *Manager) testRouterOSRest(cfg HostConfig) (map[string]any, error) {
+	ports := []string{"80", "443"}
+	if cfg.Port > 0 && cfg.Port != 22 {
+		ports = []string{strconv.Itoa(cfg.Port), "80", "443"}
+	}
+	for _, p := range ports {
+		scheme := "http"
+		if p == "443" {
+			scheme = "https"
+		}
+		url := fmt.Sprintf("%s://%s:%s/rest/system/resource", scheme, cfg.Host, p)
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			continue
+		}
+		req.SetBasicAuth(cfg.User, cfg.Password)
+		client := &http.Client{
+			Timeout: 3 * time.Second,
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			},
+		}
+		resp, err := client.Do(req)
+		if err != nil || resp.StatusCode >= 400 {
+			if resp != nil {
+				_ = resp.Body.Close()
+			}
+			continue
+		}
+		defer resp.Body.Close()
+
+		var res struct {
+			Platform         string `json:"platform"`
+			ArchitectureName string `json:"architecture-name"`
+			BoardName        string `json:"board-name"`
+			Version          string `json:"version"`
+			CpuCount         string `json:"cpu-count"`
+			CpuLoad          string `json:"cpu-load"`
+			TotalMemory      string `json:"total-memory"`
+			FreeMemory       string `json:"free-memory"`
+			Uptime           string `json:"uptime"`
+		}
+		if err := json.NewDecoder(resp.Body).Decode(&res); err == nil && (res.Platform == "MikroTik" || res.Version != "") {
+			cores, _ := strconv.Atoi(res.CpuCount)
+			if cores <= 0 {
+				cores = 1
+			}
+			var totalMB, freeMB float64
+			memTotalStr := ""
+			if totalBytes, err := strconv.ParseFloat(res.TotalMemory, 64); err == nil {
+				if totalBytes > 1000000 {
+					totalMB = totalBytes / 1024 / 1024
+				} else {
+					totalMB = totalBytes
+				}
+				memTotalStr = fmt.Sprintf("%.0fMiB", totalMB)
+			}
+			if freeBytes, err := strconv.ParseFloat(res.FreeMemory, 64); err == nil {
+				if freeBytes > 1000000 {
+					freeMB = freeBytes / 1024 / 1024
+				} else {
+					freeMB = freeBytes
+				}
+			}
+			memUsedStr := ""
+			if totalMB > 0 && freeMB > 0 {
+				used := totalMB - freeMB
+				if used < 0 {
+					used = 0
+				}
+				memUsedStr = fmt.Sprintf("%.0fMiB", used)
+			}
+
+			loadStr := ""
+			if res.CpuLoad != "" {
+				loadStr = res.CpuLoad + "%"
+			}
+
+			result := map[string]any{
+				"ok":                 true,
+				"connected":          true,
+				"os_pretty":          fmt.Sprintf("MikroTik RouterOS %s", res.Version),
+				"os_name":            "MikroTik RouterOS",
+				"arch":               res.ArchitectureName,
+				"platform_id":        "routeros",
+				"ip_forward":         true,
+				"kernel":             res.Version,
+				"cpu_cores":          cores,
+				"cpu_load":           loadStr,
+				"memory_used":        memUsedStr,
+				"memory_total":       memTotalStr,
+				"uptime":             res.Uptime,
+				"firewall_configured": true,
+			}
+
+			m.mu.Lock()
+			m.cachedInfo = &HostInfo{
+				Connected:          true,
+				OSName:             fmt.Sprintf("MikroTik RouterOS %s", res.Version),
+				PlatformID:         "routeros",
+				KernelVersion:      res.Version,
+				Arch:               res.ArchitectureName,
+				HostName:           res.BoardName,
+				Uptime:             res.Uptime,
+				IPForward:          true,
+				FirewallConfigured: true,
+				CPUCores:           cores,
+				CPULoad:            loadStr,
+				MemoryUsed:         memUsedStr,
+				MemoryTotal:        memTotalStr,
+			}
+			m.mu.Unlock()
+
+			return result, nil
+		}
+	}
+	return nil, fmt.Errorf("RouterOS REST API 连接失败 (尝试端口 80/443)")
+}
+
 // TestSSH tests the SSH credentials, auto-detecting MikroTik RouterOS or standard Linux hosts.
 func (m *Manager) TestSSH(cfg HostConfig) (map[string]any, error) {
 	client, err := m.getSSHClient(cfg)
 	if err != nil {
+		// Fallback to RouterOS REST API check (port 80 / 443)
+		if restRes, restErr := m.testRouterOSRest(cfg); restErr == nil && restRes != nil {
+			_ = m.syncToROSConfig(cfg)
+			return restRes, nil
+		}
 		return nil, fmt.Errorf("SSH 握手或鉴权失败: %w", err)
 	}
 	defer client.Close()
@@ -168,26 +347,21 @@ func (m *Manager) TestSSH(cfg HostConfig) (map[string]any, error) {
 		session.Close()
 		outStr := b.String()
 		if rErr == nil && (strings.Contains(outStr, "platform: MikroTik") || strings.Contains(outStr, "version:") || strings.Contains(outStr, "uptime:")) {
-			ver := "7.x"
-			arch := "x86_64"
-			for _, line := range strings.Split(outStr, "\n") {
-				line = strings.TrimSpace(line)
-				if strings.HasPrefix(line, "version:") {
-					ver = strings.TrimSpace(strings.TrimPrefix(line, "version:"))
-				}
-				if strings.HasPrefix(line, "architecture-name:") {
-					arch = strings.TrimSpace(strings.TrimPrefix(line, "architecture-name:"))
-				}
-			}
+			ver, arch, cores, load, memUsed, memTotal := parseROSResourcePrint(outStr)
 			res := map[string]any{
-				"ok":          true,
-				"connected":   true,
-				"os_pretty":   fmt.Sprintf("MikroTik RouterOS %s", ver),
-				"os_name":     "MikroTik RouterOS",
-				"arch":        arch,
-				"platform_id": "routeros",
-				"ip_forward":  true,
-				"kernel":      ver,
+				"ok":                 true,
+				"connected":          true,
+				"os_pretty":          fmt.Sprintf("MikroTik RouterOS %s", ver),
+				"os_name":            "MikroTik RouterOS",
+				"arch":               arch,
+				"platform_id":        "routeros",
+				"ip_forward":         true,
+				"kernel":             ver,
+				"cpu_cores":          cores,
+				"cpu_load":           load,
+				"memory_used":        memUsed,
+				"memory_total":       memTotal,
+				"firewall_configured": true,
 			}
 			_ = m.syncToROSConfig(cfg)
 			m.mu.Lock()
@@ -199,6 +373,10 @@ func (m *Manager) TestSSH(cfg HostConfig) (map[string]any, error) {
 				Arch:               arch,
 				IPForward:          true,
 				FirewallConfigured: true,
+				CPUCores:           cores,
+				CPULoad:            load,
+				MemoryUsed:         memUsed,
+				MemoryTotal:        memTotal,
 			}
 			m.mu.Unlock()
 			return res, nil
@@ -292,6 +470,48 @@ func (m *Manager) ProbeHost() (*HostInfo, error) {
 		OSName:     "Linux Host",
 	}
 
+	targetHost := cfg.Host
+	targetUser := cfg.User
+	targetPass := cfg.Password
+	if targetHost == "" {
+		rosFile := filepath.Join(m.rootDir, "data", "ros-config.json")
+		if data, err := os.ReadFile(rosFile); err == nil {
+			var rosCfg map[string]string
+			if json.Unmarshal(data, &rosCfg) == nil && rosCfg["host"] != "" {
+				targetHost = rosCfg["host"]
+				targetUser = rosCfg["user"]
+				targetPass = rosCfg["password"]
+			}
+		}
+	}
+	if targetHost != "" {
+		if restRes, err := m.testRouterOSRest(HostConfig{Host: targetHost, User: targetUser, Password: targetPass}); err == nil && restRes != nil {
+			info.Connected = true
+			info.PlatformID = "routeros"
+			info.OSName = restRes["os_pretty"].(string)
+			info.KernelVersion = restRes["kernel"].(string)
+			info.Arch = restRes["arch"].(string)
+			info.IPForward = true
+			info.FirewallConfigured = true
+			if c, ok := restRes["cpu_cores"].(int); ok {
+				info.CPUCores = c
+			}
+			if l, ok := restRes["cpu_load"].(string); ok {
+				info.CPULoad = l
+			}
+			if u, ok := restRes["memory_used"].(string); ok {
+				info.MemoryUsed = u
+			}
+			if t, ok := restRes["memory_total"].(string); ok {
+				info.MemoryTotal = t
+			}
+			m.mu.Lock()
+			m.cachedInfo = info
+			m.mu.Unlock()
+			return info, nil
+		}
+	}
+
 	if !cfg.Enabled || cfg.Host == "" {
 		// Attempt local container detection
 		info.OSName = m.detectLocalHost()
@@ -307,6 +527,71 @@ func (m *Manager) ProbeHost() (*HostInfo, error) {
 	defer client.Close()
 
 	info.Connected = true
+
+	// 0. RouterOS Probing & Telemetry
+	if session, err := client.NewSession(); err == nil {
+		var out bytes.Buffer
+		session.Stdout = &out
+		session.Stderr = &out
+		_ = session.Run("/system/resource/print")
+		session.Close()
+		outStr := out.String()
+		if strings.Contains(outStr, "platform: MikroTik") || strings.Contains(outStr, "architecture-name:") || strings.Contains(outStr, "version:") {
+			info.OSName = "MikroTik RouterOS"
+			info.PlatformID = "routeros"
+			info.IPForward = true
+			info.FirewallConfigured = true
+
+			var totalMemNum, freeMemNum float64
+			for _, line := range strings.Split(outStr, "\n") {
+				line = strings.TrimSpace(line)
+				if strings.HasPrefix(line, "version:") {
+					ver := strings.TrimSpace(strings.TrimPrefix(line, "version:"))
+					info.KernelVersion = ver
+					info.OSName = fmt.Sprintf("MikroTik RouterOS %s", ver)
+				}
+				if strings.HasPrefix(line, "architecture-name:") {
+					info.Arch = strings.TrimSpace(strings.TrimPrefix(line, "architecture-name:"))
+				}
+				if strings.HasPrefix(line, "board-name:") {
+					info.HostName = strings.TrimSpace(strings.TrimPrefix(line, "board-name:"))
+				}
+				if strings.HasPrefix(line, "cpu-count:") {
+					cStr := strings.TrimSpace(strings.TrimPrefix(line, "cpu-count:"))
+					info.CPUCores, _ = strconv.Atoi(cStr)
+				}
+				if strings.HasPrefix(line, "cpu-load:") {
+					info.CPULoad = strings.TrimSpace(strings.TrimPrefix(line, "cpu-load:"))
+				}
+				if strings.HasPrefix(line, "total-memory:") {
+					info.MemoryTotal = strings.TrimSpace(strings.TrimPrefix(line, "total-memory:"))
+					if strings.HasSuffix(info.MemoryTotal, "MiB") {
+						totalMemNum, _ = strconv.ParseFloat(strings.TrimSuffix(info.MemoryTotal, "MiB"), 64)
+					}
+				}
+				if strings.HasPrefix(line, "free-memory:") {
+					freeStr := strings.TrimSpace(strings.TrimPrefix(line, "free-memory:"))
+					if strings.HasSuffix(freeStr, "MiB") {
+						freeMemNum, _ = strconv.ParseFloat(strings.TrimSuffix(freeStr, "MiB"), 64)
+					}
+				}
+				if strings.HasPrefix(line, "uptime:") {
+					info.Uptime = strings.TrimSpace(strings.TrimPrefix(line, "uptime:"))
+				}
+			}
+			if totalMemNum > 0 && freeMemNum > 0 {
+				used := totalMemNum - freeMemNum
+				info.MemoryUsed = fmt.Sprintf("%.0fMiB", used)
+			}
+			if info.CPUCores == 0 {
+				info.CPUCores = 1
+			}
+			m.mu.Lock()
+			m.cachedInfo = info
+			m.mu.Unlock()
+			return info, nil
+		}
+	}
 
 	// 1. Check OS release
 	if session, err := client.NewSession(); err == nil {
